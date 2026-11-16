@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>祝1周年 ふたりすごろく</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yomogi&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* palette: navy game-box + marigold/coral accents on cream paper */
+    --navy: #161c38;
+    --navy-deep: #0e1226;
+    --paper: #fbf1e1;
+    --paper-dim: #efe3c9;
+    --ink: #161c38;
+    --gold: #f3a53b;
+    --gold-deep: #d6872a;
+    --coral: #ff6f59;
+    --coral-deep: #e2503d;
+    --line-on-navy: rgba(251,241,225,0.16);
+    --line-on-paper: rgba(22,28,56,0.14);
+    --shadow: rgba(14,18,38,0.35);
+    color-scheme: dark;
+
+    --font-display: 'Yomogi', 'Zen Maru Gothic', sans-serif;
+    --font-body: 'Zen Maru Gothic', 'Yomogi', sans-serif;
+  }
+
+  *{ box-sizing: border-box; }
+  html, body{ margin:0; padding:0; }
+  body{
+    background: var(--navy);
+    color: var(--paper);
+    font-family: var(--font-body);
+    min-height: 100%;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+
+  .stage{
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 18px 56px;
+  }
+
+  /* top stamp bar */
+  .stampbar{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 14px;
+    padding: 14px 0 6px;
+  }
+  .stamp{
+    width: 42px; height:42px;
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 20px;
+    background: rgba(251,241,225,0.07);
+    border: 2px solid var(--line-on-navy);
+    opacity: 0.45;
+    transition: all .35s ease;
+  }
+  .stamp.active{
+    opacity: 1;
+    background: var(--gold);
+    border-color: var(--gold-deep);
+    box-shadow: 0 4px 0 var(--gold-deep);
+    transform: translateY(-2px) rotate(-4deg);
+  }
+  .stamp-link{ width:20px; height:2px; background: var(--line-on-navy); border-radius:2px; }
+
+  .scene{ display:none; }
+  .scene.visible{ display:block; animation: fadein .45s ease; }
+  @keyframes fadein{ from{ opacity:0; transform: translateY(10px); } to{ opacity:1; transform:none; } }
+
+  .eyebrow{
+    font-size: 13px;
+    letter-spacing: .12em;
+    color: var(--gold);
+    font-weight: 700;
+    text-align:center;
+    margin: 0 0 4px;
+  }
+  h1.display{
+    font-family: var(--font-display);
+    font-size: clamp(34px, 9vw, 52px);
+    text-align:center;
+    margin: 0 0 6px;
+    line-height: 1.15;
+    text-shadow: 0 3px 0 var(--navy-deep);
+  }
+  h2.display{
+    font-family: var(--font-display);
+    font-size: clamp(24px, 6vw, 30px);
+    text-align:center;
+    margin: 0 0 4px;
+  }
+  p.lead{
+    text-align:center;
+    color: var(--paper-dim);
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 460px;
+    margin: 0 auto 22px;
+  }
+
+  .btn{
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--navy-deep);
+    background: var(--gold);
+    border: none;
+    border-radius: 999px;
+    padding: 14px 30px;
+    box-shadow: 0 5px 0 var(--gold-deep);
+    cursor: pointer;
+    display:block;
+    margin: 0 auto;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{ transform: translateY(4px); box-shadow: 0 1px 0 var(--gold-deep); }
+  .btn.secondary{
+    background: transparent;
+    color: var(--paper);
+    box-shadow: none;
+    border: 2px solid var(--line-on-navy);
+    font-weight: 500;
+  }
+  .btn.secondary:active{ transform: translateY(2px); }
+  .btn[disabled]{ opacity:.35; pointer-events:none; }
+  .btn-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:18px; }
+
+  /* ---------- Scene 0: Title ---------- */
+  .title-card{
+    background: radial-gradient(circle at 30% 20%, rgba(243,165,59,0.18), transparent 60%);
+    border: 2px dashed var(--line-on-navy);
+    border-radius: 26px;
+    padding: 46px 22px 36px;
+    margin-top: 10px;
+    text-align:center;
+  }
+  .title-emoji{ font-size: 44px; margin-bottom: 6px; }
+  .heart-row{ font-size: 20px; letter-spacing: 6px; margin: 14px 0 22px; opacity:.8; }
+
+  /* ---------- Scene 1: Mission cards ---------- */
+  .cards{
+    display:flex; gap: 14px; justify-content:center; flex-wrap:wrap; margin: 18px 0 8px;
+  }
+  .card{
+    width: 150px; height: 190px;
+    perspective: 900px;
+    cursor:pointer;
+  }
+  .card-inner{
+    position:relative; width:100%; height:100%;
+    transition: transform .55s cubic-bezier(.3,.9,.3,1);
+    transform-style: preserve-3d;
+  }
+  .card.flipped .card-inner{ transform: rotateY(180deg); }
+  .card-face{
+    position:absolute; inset:0;
+    border-radius: 16px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 14px;
+    backface-visibility: hidden;
+    text-align:center;
+  }
+  .card-front{
+    background: linear-gradient(160deg, var(--coral), var(--coral-deep));
+    border: 3px solid rgba(251,241,225,0.35);
+    box-shadow: 0 6px 0 rgba(14,18,38,0.4);
+  }
+  .card-front .q{ font-family: var(--font-display); font-size: 40px; color: var(--paper); }
+  .card-front .hint{ font-size: 11px; color: var(--paper); opacity:.85; margin-top:8px; }
+  .card-back{
+    background: var(--paper);
+    color: var(--ink);
+    transform: rotateY(180deg);
+    border: 3px solid var(--gold-deep);
+    box-shadow: 0 6px 0 rgba(14,18,38,0.3);
+  }
+  .card-back .icon{ font-size: 28px; margin-bottom: 6px; }
+  .card-back .label{ font-size: 11px; font-weight:700; color: var(--coral-deep); margin-bottom: 6px; letter-spacing:.06em; }
+  .card-back .txt{ font-size: 13px; line-height: 1.5; }
+
+  /* ---------- Scene 2: Sugoroku board ---------- */
+  .board{
+    display:flex; flex-direction:column; gap: 8px;
+    background: var(--paper);
+    border-radius: 20px;
+    padding: 14px;
+    margin: 18px 0;
+    box-shadow: inset 0 0 0 3px var(--gold-deep);
+  }
+  .board-row{ display:flex; gap: 8px; }
+  .board-row.reverse{ flex-direction: row-reverse; }
+  .tile{
+    flex: 1;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    background: var(--paper-dim);
+    color: var(--ink);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-size: 10px;
+    font-weight: 700;
+    position: relative;
+    border: 2px solid rgba(22,28,56,0.08);
+  }
+  .tile .n{ font-size: 11px; opacity:.55; }
+  .tile .ic{ font-size: 16px; }
+  .tile.done{ background: rgba(243,165,59,0.35); }
+  .tile.start{ background: var(--gold); }
+  .tile.goal{ background: var(--coral); color: var(--paper); }
+  .tile .token{
+    position:absolute; top:-14px; left:50%; transform: translateX(-50%);
+    font-size: 22px;
+    animation: bounce .6s ease infinite alternate;
+    filter: drop-shadow(0 3px 2px rgba(0,0,0,.3));
+  }
+  @keyframes bounce{ from{ transform: translate(-50%, 0); } to{ transform: translate(-50%, -5px); } }
+
+  .dice-area{ text-align:center; margin: 10px 0 6px; }
+  .dice{
+    width: 68px; height:68px;
+    margin: 0 auto 14px;
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 14px;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 30px;
+    font-weight: 900;
+    border: 3px solid var(--gold-deep);
+    box-shadow: 0 5px 0 var(--navy-deep);
+  }
+  .dice.rolling{ animation: spin .5s linear; }
+  @keyframes spin{ from{ transform: rotate(0deg) scale(1); } 50%{ transform: rotate(180deg) scale(1.15); } to{ transform: rotate(360deg) scale(1); } }
+
+  .turnlog{ text-align:center; font-size: 13px; color: var(--paper-dim); min-height: 18px; margin-bottom: 4px; }
+
+  /* square popup */
+  .overlay{
+    position: fixed; inset:0;
+    background: rgba(14,18,38,0.72);
+    display:flex; align-items:center; justify-content:center;
+    padding: 24px;
+    z-index: 50;
+    opacity:0; pointer-events:none;
+    transition: opacity .25s ease;
+  }
+  .overlay.show{ opacity:1; pointer-events:auto; }
+  .popup{
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 22px;
+    padding: 30px 24px 26px;
+    max-width: 360px;
+    width: 100%;
+    text-align:center;
+    border: 3px solid var(--gold-deep);
+    box-shadow: 0 10px 0 rgba(14,18,38,0.4);
+    transform: translateY(16px) scale(.96);
+    transition: transform .25s ease;
+  }
+  .overlay.show .popup{ transform: none; }
+  .popup .tag{
+    display:inline-block;
+    font-size: 11px; font-weight:700; letter-spacing:.08em;
+    color: var(--paper);
+    background: var(--coral-deep);
+    border-radius: 999px;
+    padding: 4px 14px;
+    margin-bottom: 12px;
+  }
+  .popup .icon{ font-size: 36px; margin-bottom: 8px; }
+  .popup .msg{ font-size: 17px; line-height: 1.6; margin-bottom: 20px; font-weight: 500; }
+
+  /* ---------- Scene 3: quiz ---------- */
+  .quiz-block{
+    background: rgba(251,241,225,0.06);
+    border: 2px solid var(--line-on-navy);
+    border-radius: 18px;
+    padding: 18px 18px 16px;
+    margin-bottom: 16px;
+  }
+  .quiz-q{ font-weight:700; margin-bottom: 12px; font-size: 15px; }
+  .opts{ display:flex; flex-wrap:wrap; gap: 8px; }
+  .opt{
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--paper);
+    background: rgba(251,241,225,0.08);
+    border: 2px solid var(--line-on-navy);
+    border-radius: 999px;
+    padding: 9px 16px;
+    cursor:pointer;
+  }
+  .opt.sel{
+    background: var(--gold);
+    color: var(--navy-deep);
+    border-color: var(--gold-deep);
+    font-weight:700;
+  }
+  .freetext{
+    width:100%;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 14px;
+    resize: vertical;
+    min-height: 44px;
+  }
+  .score-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .score-btn{
+    flex: 1 1 60px;
+    text-align:center;
+    font-weight:700;
+    font-size: 14px;
+    color: var(--paper);
+    background: rgba(251,241,225,0.08);
+    border: 2px solid var(--line-on-navy);
+    border-radius: 12px;
+    padding: 10px 0;
+    cursor:pointer;
+  }
+  .score-btn.sel{ background: var(--coral); border-color: var(--coral-deep); color: var(--paper); }
+
+  /* ---------- Certificate ---------- */
+  .cert{
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 20px;
+    padding: 30px 24px;
+    border: 4px double var(--gold-deep);
+    text-align:center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cert::before{
+    content: "";
+    position:absolute; inset: 10px;
+    border: 1.5px solid rgba(22,28,56,0.18);
+    border-radius: 12px;
+    pointer-events:none;
+  }
+  .cert .cert-eyebrow{ font-size: 12px; letter-spacing:.16em; color: var(--coral-deep); font-weight:700; }
+  .cert h2{ font-family: var(--font-display); font-size: 30px; margin: 6px 0 2px; }
+  .cert .cert-date{ font-size: 12px; color: rgba(22,28,56,0.6); margin-bottom: 18px; }
+  .cert .cert-title{
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--coral-deep);
+    margin: 10px 0 16px;
+  }
+  .cert .cert-line{ font-size: 14px; line-height: 1.8; margin: 6px 0; text-align:left; }
+  .cert .cert-line b{ color: var(--coral-deep); }
+  .cert .seal{
+    width: 64px; height:64px;
+    border-radius: 50%;
+    background: var(--coral);
+    color: var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 11px; font-weight:800; text-align:center; line-height:1.2;
+    margin: 16px auto 0;
+    border: 3px solid var(--coral-deep);
+    transform: rotate(-8deg);
+  }
+  .note{ text-align:center; font-size: 12px; color: var(--paper-dim); margin-top: 14px; }
+
+  @media (max-width: 420px){
+    .card{ width: 104px; height: 144px; }
+    .card-front .q{ font-size: 30px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="stampbar">
+    <div class="stamp" id="stamp1">🍡</div>
+    <div class="stamp-link"></div>
+    <div class="stamp" id="stamp2">🎲</div>
+    <div class="stamp-link"></div>
+    <div class="stamp" id="stamp3">🏆</div>
+  </div>
+
+  <!-- Scene 0: Title -->
+  <section class="scene" id="scene-title">
+    <div class="title-card">
+      <div class="title-emoji">🎉</div>
+      <p class="eyebrow">HAPPY 1ST ANNIVERSARY</p>
+      <h1 class="display">祝、1周年。</h1>
+      <div class="heart-row">· ⭐ · 🍡 · 📸 · 🍝 · ⭐ ·</div>
+      <p class="lead">いつも一緒にいてくれてありがとう。<br>今日という日を、ちょっと遊び心のあるゲームでお祝いしよう。<br>食品サンプル作り、写真館、ディナー、すべてに連動した3つのステージがあります。</p>
+      <button class="btn" onclick="goTo('cards')">はじめる →</button>
+    </div>
+  </section>
+
+  <!-- Scene 1: Mission cards -->
+  <section class="scene" id="scene-cards">
+    <p class="eyebrow">STAGE 1 · 朝のミッションカード</p>
+    <h2 class="display">カードをめくろう</h2>
+    <p class="lead">今日出かける前に、3枚のカードを1枚ずつタップ。<br>今日1日のちいさなミッションが出てきます。</p>
+
+    <div class="cards" id="cardArea"></div>
+
+    <div class="btn-row">
+      <button class="btn" id="toSugorokuBtn" disabled onclick="goTo('sugoroku')">すごろくへ →</button>
+    </div>
+  </section>
+
+  <!-- Scene 2: Sugoroku -->
+  <section class="scene" id="scene-sugoroku">
+    <p class="eyebrow">STAGE 2 · ふたりすごろく</p>
+    <h2 class="display">ゴールまで進もう</h2>
+    <p class="lead">サイコロをふって、マスに書かれたことをふたりでやってみよう。</p>
+
+    <div class="board" id="board"></div>
+
+    <div class="dice-area">
+      <div class="dice" id="dice">🎲</div>
+      <button class="btn" id="rollBtn" onclick="rollDice()">サイコロをふる</button>
+      <p class="turnlog" id="turnlog"></p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="toQuizBtn" disabled onclick="goTo('quiz')">ふりかえりへ →</button>
+    </div>
+  </section>
+
+  <!-- Scene 3: Quiz + Certificate -->
+  <section class="scene" id="scene-quiz">
+    <p class="eyebrow">STAGE 3 · 今日のふりかえり</p>
+    <h2 class="display">最後にひとつずつ</h2>
+    <p class="lead">答えると、1周年の表彰状が出てきます。</p>
+
+    <div class="quiz-block">
+      <p class="quiz-q">Q1. 今日いちばん楽しかったのは？</p>
+      <div class="opts" data-q="q1">
+        <div class="opt" data-v="食品サンプル作り">食品サンプル作り</div>
+        <div class="opt" data-v="写真館">写真館</div>
+        <div class="opt" data-v="イタリアンディナー">イタリアンディナー</div>
+        <div class="opt" data-v="ぜんぶ">ぜんぶ</div>
+      </div>
+    </div>
+
+    <div class="quiz-block">
+      <p class="quiz-q">Q2. 今日のMVP（一番がんばったのは）？</p>
+      <div class="opts" data-q="q2">
+        <div class="opt" data-v="わたし">わたし</div>
+        <div class="opt" data-v="あなた">あなた</div>
+        <div class="opt" data-v="ふたり">ふたり</div>
+      </div>
+    </div>
+
+    <div class="quiz-block">
+      <p class="quiz-q">Q3. 今日を一言で言うと？</p>
+      <textarea class="freetext" id="q3" placeholder="例：しあわせすぎる1日" maxlength="60"></textarea>
+    </div>
+
+    <div class="quiz-block">
+      <p class="quiz-q">Q4. 2年目にふたりでしたいことは？</p>
+      <textarea class="freetext" id="q4" placeholder="例：一緒に旅行に行く" maxlength="60"></textarea>
+    </div>
+
+    <div class="quiz-block">
+      <p class="quiz-q">Q5. 今日を100点満点で採点すると？</p>
+      <div class="score-row" data-q="q5">
+        <div class="score-btn" data-v="80点">80</div>
+        <div class="score-btn" data-v="90点">90</div>
+        <div class="score-btn" data-v="95点">95</div>
+        <div class="score-btn" data-v="100点">100</div>
+        <div class="score-btn" data-v="120点">120</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="showCertificate()">表彰状を見る 🏆</button>
+    </div>
+
+    <div id="certWrap" style="display:none; margin-top:22px;"></div>
+  </section>
+
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="popup">
+    <div class="tag" id="popupTag">ふつうマス</div>
+    <div class="icon" id="popupIcon">💬</div>
+    <div class="msg" id="popupMsg"></div>
+    <button class="btn" onclick="closePopup()">OK、つぎへ</button>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  var state = {
+    scene: 'title',
+    cardsFlipped: [false,false,false],
+    pos: 0,
+    quiz: { q1:null, q2:null, q3:'', q4:'', q5:null }
+  };
+
+  function save(){
+    try{ localStorage.setItem('anniv_state_v1', JSON.stringify(state)); }catch(e){}
+  }
+  function load(){
+    try{
+      var raw = localStorage.getItem('anniv_state_v1');
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  }
+
+  var MISSIONS = [
+    { icon:'🍡', label:'食品サンプル作りミッション', text:'完成した作品を、本物のごちそうみたいに掲げて「いただきます」の写真を1枚撮る。' },
+    { icon:'📸', label:'写真館ミッション', text:'1年前と同じ場所で、1年前と同じポーズをひとつ再現する。' },
+    { icon:'🍝', label:'ディナーミッション', text:'乾杯の前に、この1年の「ありがとう」をひとつだけ声に出して伝える。' }
+  ];
+
+  // board squares 1..20 (index0 unused, 1=start, 20=goal)
+  var SQUARES = [
+    null,
+    { type:'start', icon:'🚩', label:'スタート' },
+    { type:'normal', icon:'💬', text:'出会った日のことを一言で言うと？' },
+    { type:'lucky', icon:'✨', text:'ふたりで せーのに好きな食べ物を言う。せーの！' },
+    { type:'normal', icon:'💬', text:'相手の「かわいい/かっこいいところ」を1つ発表。' },
+    { type:'mission', icon:'🎯', text:'いまの気持ちを漢字1文字で表す。' },
+    { type:'normal', icon:'💬', text:'この1年で一番笑った出来事は？' },
+    { type:'warp', icon:'🌀', text:'ワープ！ 2マス進む。', jump:2 },
+    { type:'normal', icon:'💬', text:'相手が最近がんばっていたことを1つ褒める。' },
+    { type:'rest', icon:'☕', text:'ひと休みマス。深呼吸して、ハグをひとつ。' },
+    { type:'lucky', icon:'✨', text:'ふたりの好きな思い出スポットを1つ挙げる。' },
+    { type:'normal', icon:'💬', text:'次の1年でやりたいことを1つ言う。' },
+    { type:'mission', icon:'🎯', text:'いまの顔のまま、変顔を1枚撮る。' },
+    { type:'normal', icon:'💬', text:'初めて「好きかも」と思った瞬間は？' },
+    { type:'warp', icon:'🌀', text:'ワープ！ 1マス戻る。', jump:-1 },
+    { type:'normal', icon:'💬', text:'相手の好きな仕草を1つ挙げる。' },
+    { type:'lucky', icon:'✨', text:'「ありがとう」をひとつ交換する。' },
+    { type:'normal', icon:'💬', text:'ずっと言いたかったけどまだ言ってないことある？' },
+    { type:'mission', icon:'🎯', text:'ふたり同時に、1〜3の好きな数字をせーので声に出す。' },
+    { type:'normal', icon:'💬', text:'2年目の目標をひとつ決める。' },
+    { type:'goal', icon:'🏁', label:'ゴール！', text:'ゴール！ お疲れさま。' }
+  ];
+  var LAST = SQUARES.length - 1;
+
+  var TAGS = { normal:'ふつうマス', lucky:'ラッキーマス', mission:'ミッションマス', warp:'ワープマス', rest:'ひと休みマス', goal:'ゴール！' };
+
+  var TITLES = [
+    '誰よりも息ぴったり部門 受賞',
+    '変顔対決 歴代1位 認定',
+    '「ありがとう」発表数 歴代最多',
+    '次の1年も安泰 認定',
+    'いちゃいちゃ部門 満点賞',
+    '記念日サイコロ運 伝説級'
+  ];
+
+  function $(id){ return document.getElementById(id); }
+
+  function goTo(name){
+    document.querySelectorAll('.scene').forEach(function(s){ s.classList.remove('visible'); });
+    $('scene-' + name).classList.add('visible');
+    state.scene = name;
+    $('stamp1').classList.toggle('active', name==='cards' || name==='sugoroku' || name==='quiz');
+    $('stamp2').classList.toggle('active', name==='sugoroku' || name==='quiz');
+    $('stamp3').classList.toggle('active', name==='quiz');
+    save();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+  window.goTo = goTo;
+
+  // ---- Scene 1: cards ----
+  function renderCards(){
+    var area = $('cardArea');
+    area.innerHTML = '';
+    MISSIONS.forEach(function(m, i){
+      var card = document.createElement('div');
+      card.className = 'card' + (state.cardsFlipped[i] ? ' flipped' : '');
+      card.innerHTML =
+        '<div class="card-inner">' +
+          '<div class="card-face card-front"><div class="q">?</div><div class="hint">タップしてめくる</div></div>' +
+          '<div class="card-face card-back"><div class="icon">'+m.icon+'</div><div class="label">'+m.label+'</div><div class="txt">'+m.text+'</div></div>' +
+        '</div>';
+      card.addEventListener('click', function(){
+        if(state.cardsFlipped[i]) return;
+        state.cardsFlipped[i] = true;
+        card.classList.add('flipped');
+        save();
+        checkCardsDone();
+      });
+      area.appendChild(card);
+    });
+  }
+  function checkCardsDone(){
+    var done = state.cardsFlipped.every(Boolean);
+    $('toSugorokuBtn').disabled = !done;
+  }
+
+  // ---- Scene 2: sugoroku ----
+  function renderBoard(){
+    var board = $('board');
+    board.innerHTML = '';
+    var cols = 5;
+    for(var r=0; r<4; r++){
+      var row = document.createElement('div');
+      row.className = 'board-row' + (r % 2 === 1 ? ' reverse' : '');
+      for(var c=0; c<cols; c++){
+        var idx = r*cols + c + 1;
+        var sq = SQUARES[idx];
+        var tile = document.createElement('div');
+        tile.className = 'tile' + (idx===1?' start':'') + (idx===LAST?' goal':'') + (idx < state.pos ? ' done' : '');
+        tile.id = 'tile-' + idx;
+        var icon = sq.icon || '';
+        tile.innerHTML = '<div class="ic">'+icon+'</div><div class="n">'+idx+'</div>';
+        row.appendChild(tile);
+      }
+      board.appendChild(row);
+    }
+    placeToken();
+  }
+  function placeToken(){
+    document.querySelectorAll('.token').forEach(function(t){ t.remove(); });
+    var tile = $('tile-' + Math.max(1, state.pos || 1));
+    if(tile){
+      var tok = document.createElement('div');
+      tok.className = 'token';
+      tok.textContent = '💛';
+      tile.appendChild(tok);
+    }
+  }
+
+  var rolling = false;
+  function rollDice(){
+    if(rolling || state.pos >= LAST) return;
+    rolling = true;
+    $('rollBtn').disabled = true;
+    var dice = $('dice');
+    dice.classList.add('rolling');
+    var spins = 8;
+    var i = 0;
+    var spinTimer = setInterval(function(){
+      dice.textContent = String(1 + Math.floor(Math.random()*6));
+      i++;
+      if(i >= spins){
+        clearInterval(spinTimer);
+        dice.classList.remove('rolling');
+        var roll = 1 + Math.floor(Math.random()*6);
+        dice.textContent = roll;
+        advance(roll);
+      }
+    }, 70);
+  }
+  window.rollDice = rollDice;
+
+  function advance(steps){
+    if(state.pos === 0) state.pos = 1;
+    var target = Math.min(state.pos + steps, LAST);
+    $('turnlog').textContent = (state.pos) + ' → ' + target + ' マス';
+    state.pos = target;
+    renderBoard();
+    save();
+    setTimeout(function(){ landOn(state.pos); }, 350);
+  }
+
+  function landOn(idx){
+    var sq = SQUARES[idx];
+    if(!sq){ rolling = false; $('rollBtn').disabled = (state.pos>=LAST); return; }
+
+    if(sq.type === 'start'){
+      rolling = false;
+      $('rollBtn').disabled = false;
+      return;
+    }
+
+    $('popupTag').textContent = TAGS[sq.type] || 'マス';
+    $('popupIcon').textContent = sq.icon;
+    $('popupMsg').textContent = sq.text;
+    $('overlay').classList.add('show');
+
+    window._afterPopup = function(){
+      if(sq.type === 'warp' && sq.jump){
+        var newPos = Math.max(1, Math.min(state.pos + sq.jump, LAST));
+        state.pos = newPos;
+        renderBoard();
+        save();
+      }
+      if(sq.type === 'goal' || state.pos >= LAST){
+        $('rollBtn').disabled = true;
+        $('toQuizBtn').disabled = false;
+        rolling = false;
+      } else {
+        rolling = false;
+        $('rollBtn').disabled = false;
+      }
+    };
+  }
+
+  function closePopup(){
+    $('overlay').classList.remove('show');
+    if(window._afterPopup){ window._afterPopup(); window._afterPopup = null; }
+  }
+  window.closePopup = closePopup;
+
+  // ---- Scene 3: quiz ----
+  function wireQuiz(){
+    document.querySelectorAll('.opts').forEach(function(group){
+      var q = group.getAttribute('data-q');
+      group.querySelectorAll('.opt').forEach(function(opt){
+        opt.addEventListener('click', function(){
+          group.querySelectorAll('.opt').forEach(function(o){ o.classList.remove('sel'); });
+          opt.classList.add('sel');
+          state.quiz[q] = opt.getAttribute('data-v');
+          save();
+        });
+      });
+    });
+    document.querySelectorAll('.score-row').forEach(function(group){
+      var q = group.getAttribute('data-q');
+      group.querySelectorAll('.score-btn').forEach(function(opt){
+        opt.addEventListener('click', function(){
+          group.querySelectorAll('.score-btn').forEach(function(o){ o.classList.remove('sel'); });
+          opt.classList.add('sel');
+          state.quiz[q] = opt.getAttribute('data-v');
+          save();
+        });
+      });
+    });
+    $('q3').addEventListener('input', function(){ state.quiz.q3 = this.value; save(); });
+    $('q4').addEventListener('input', function(){ state.quiz.q4 = this.value; save(); });
+  }
+
+  function showCertificate(){
+    var d = new Date();
+    var dateStr = d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+    var title = TITLES[Math.floor(Math.random()*TITLES.length)];
+    var fav = state.quiz.q1 || 'すべての瞬間';
+    var mvp = state.quiz.q2 || 'ふたり';
+    var mood = state.quiz.q3 || '';
+    var next = state.quiz.q4 || '';
+    var score = state.quiz.q5 || '100点';
+
+    var html =
+      '<div class="cert">' +
+        '<p class="cert-eyebrow">CERTIFICATE OF 1ST ANNIVERSARY</p>' +
+        '<h2>表彰状</h2>' +
+        '<p class="cert-date">' + dateStr + '</p>' +
+        '<p class="cert-title">称号：' + title + '</p>' +
+        '<p class="cert-line">この証は、1周年を迎えたふたりが、食品サンプル作り・写真館・イタリアンディナーのすべてのミッションをやり遂げたことを記念して贈られるものです。</p>' +
+        '<p class="cert-line"><b>今日いちばん楽しかった瞬間：</b>' + escapeHtml(fav) + '</p>' +
+        '<p class="cert-line"><b>今日のMVP：</b>' + escapeHtml(mvp) + '</p>' +
+        (mood ? '<p class="cert-line"><b>今日をひとことで：</b>' + escapeHtml(mood) + '</p>' : '') +
+        (next ? '<p class="cert-line"><b>2年目の目標：</b>' + escapeHtml(next) + '</p>' : '') +
+        '<p class="cert-line"><b>採点：</b>' + escapeHtml(score) + '</p>' +
+        '<div class="seal">1st<br>ANNIV</div>' +
+      '</div>' +
+      '<p class="note">📸 この表彰状はスクリーンショットで保存してね</p>' +
+      '<div class="btn-row"><button class="btn secondary" onclick="resetAll()">もう一度あそぶ</button></div>';
+
+    $('certWrap').innerHTML = html;
+    $('certWrap').style.display = 'block';
+    $('certWrap').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  window.showCertificate = showCertificate;
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  function resetAll(){
+    state = { scene:'title', cardsFlipped:[false,false,false], pos:0, quiz:{ q1:null,q2:null,q3:'',q4:'',q5:null } };
+    save();
+    boot(state);
+    goTo('title');
+  }
+  window.resetAll = resetAll;
+
+  function boot(initial){
+    state = initial || state;
+    renderCards();
+    checkCardsDone();
+    renderBoard();
+    wireQuiz();
+    $('toSugorokuBtn').disabled = !state.cardsFlipped.every(Boolean);
+    $('toQuizBtn').disabled = !(state.pos >= LAST);
+    $('rollBtn').disabled = (state.pos >= LAST);
+    if(state.quiz){
+      document.querySelectorAll('.opts').forEach(function(group){
+        var q = group.getAttribute('data-q');
+        var v = state.quiz[q];
+        if(v){
+          group.querySelectorAll('.opt').forEach(function(o){
+            if(o.getAttribute('data-v') === v) o.classList.add('sel');
+          });
+        }
+      });
+      document.querySelectorAll('.score-row').forEach(function(group){
+        var q = group.getAttribute('data-q');
+        var v = state.quiz[q];
+        if(v){
+          group.querySelectorAll('.score-btn').forEach(function(o){
+            if(o.getAttribute('data-v') === v) o.classList.add('sel');
+          });
+        }
+      });
+      if($('q3')) $('q3').value = state.quiz.q3 || '';
+      if($('q4')) $('q4').value = state.quiz.q4 || '';
+    }
+    goTo(state.scene || 'title');
+  }
+
+  function start(data){
+    var hasData = data && Object.keys(data).length > 0;
+    boot(hasData ? data : (load() || state));
+  }
+
+  if(window.claude && window.claude.hot){
+    window.claude.hot.snapshot(function(){ return state; });
+    if(window.claude.hot.ready){ window.claude.hot.ready(start); }
+    else { start(window.claude.hot.data || {}); }
+  } else {
+    start({});
+  }
+
+})();
+</script>
+</body>
+</html>
