@@ -45,6 +45,7 @@
     margin: 0 auto;
     padding: 20px 18px 56px;
   }
+  .stage:has(#scene-sugoroku.visible){ padding-bottom: 18px; }
 
   /* top stamp bar */
   .stampbar{
@@ -72,6 +73,17 @@
     transform: translateY(-2px) rotate(-4deg);
   }
   .stamp-link{ width:20px; height:2px; background: var(--line-on-navy); border-radius:2px; }
+
+  /* ---------- Illustration icons (replace emoji where a matching SVG exists) ---------- */
+  .icon-illustration{ display:inline-block; object-fit:contain; vertical-align:middle; flex:none; }
+  .stamp .icon-illustration{ width:22px; height:22px; }
+  .card-back .icon .icon-illustration{ width:26px; height:26px; }
+  .tile .ic .icon-illustration{ width:min(62%,22px); height:min(62%,22px); }
+  .tile .token .icon-illustration{ width:20px; height:20px; }
+  .popup .icon .icon-illustration{ width:38px; height:38px; }
+  .dice .icon-illustration{ width:30px; height:30px; }
+  .heart-row .icon-illustration{ width:18px; height:18px; }
+  .goal-banner .txt .icon-illustration{ width:16px; height:16px; margin:0 2px; }
 
   .scene{ display:none; }
   .scene.visible{ display:block; animation: fadein .45s ease; }
@@ -138,7 +150,7 @@
 
   /* ---------- Mascot / speech bubble ---------- */
   .mascot-row{
-    display:flex; align-items:flex-end; gap: 10px;
+    display:flex; align-items:center; gap: 10px;
     margin: 0 0 16px;
   }
   .mascot-row img{
@@ -155,7 +167,9 @@
     line-height: 1.5;
     font-weight: 600;
     box-shadow: 0 4px 0 rgba(14,18,38,0.25);
-    max-width: 230px;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
   }
   .speech-bubble::before{
     content:"";
@@ -184,7 +198,10 @@
     animation: heroFade .6s ease;
   }
   @keyframes heroFade{ from{ opacity:0; transform: translateY(8px); } to{ opacity:1; transform:none; } }
-  .heart-row{ font-size: 20px; letter-spacing: 6px; margin: 10px 0 18px; opacity:.8; }
+  .heart-row{
+    display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
+    gap: 10px; font-size: 20px; margin: 10px 0 18px; opacity:.8;
+  }
 
   /* ---------- Scene 1: Mission cards ---------- */
   .cards{
@@ -222,10 +239,13 @@
     transform: rotateY(180deg);
     border: 3px solid var(--gold-deep);
     box-shadow: 0 6px 0 rgba(14,18,38,0.3);
+    justify-content: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  .card-back .icon{ font-size: 28px; margin-bottom: 6px; }
-  .card-back .label{ font-size: 11px; font-weight:700; color: var(--coral-deep); margin-bottom: 6px; letter-spacing:.06em; }
-  .card-back .txt{ font-size: 13px; line-height: 1.5; }
+  .card-back .icon{ font-size: 26px; line-height:1; margin-bottom: 5px; flex:none; }
+  .card-back .label{ font-size: 10.5px; font-weight:700; color: var(--coral-deep); margin-bottom: 5px; letter-spacing:.04em; line-height:1.3; flex:none; }
+  .card-back .txt{ font-size: 12.5px; line-height: 1.42; }
 
   /* ---------- Scene 2: Sugoroku board ---------- */
   .board{
@@ -303,6 +323,46 @@
   @keyframes spin{ from{ transform: rotate(0deg) scale(1); } 50%{ transform: rotate(180deg) scale(1.15); } to{ transform: rotate(360deg) scale(1); } }
 
   .turnlog{ text-align:center; font-size: 13px; color: var(--paper-dim); min-height: 18px; margin-bottom: 4px; }
+
+  /* ---------- Stage 2: keep everything on one phone screen where realistically possible ---------- */
+  #scene-sugoroku.visible{ display:flex; flex-direction:column; min-height:0; }
+  #scene-sugoroku .eyebrow{ margin-bottom:2px; }
+  #scene-sugoroku h2.display{ font-size: clamp(21px,5.6vw,27px); margin-bottom:3px; }
+  #scene-sugoroku .lead{ margin: 0 0 8px; font-size: 13px; line-height:1.45; }
+  #scene-sugoroku .mascot-row{ margin-bottom: 8px; }
+  #scene-sugoroku .mascot-row img{ width: 42px; }
+  #scene-sugoroku .speech-bubble{ padding: 8px 12px; font-size: 12.5px; line-height:1.35; }
+  #scene-sugoroku .board{
+    height: var(--fit-board-height, 260px);
+    min-height: 0;
+    flex: none;
+    margin: 6px 0 8px;
+    padding: 8px;
+    gap: 5px;
+  }
+  #scene-sugoroku .board-row{ flex:1; min-height:0; gap:5px; }
+  #scene-sugoroku .tile{ aspect-ratio:auto; min-height:0; border-radius:7px; gap:1px; }
+  #scene-sugoroku .tile .n{ font-size: 10px; }
+  #scene-sugoroku .tile .token{ top:-9px; }
+  #scene-sugoroku .dice-area{ margin: 2px 0 0; }
+  #scene-sugoroku .dice{ width:44px; height:44px; margin:0 auto 8px; font-size:22px; }
+  #scene-sugoroku #rollBtn{ padding: 10px 24px; font-size: 14px; }
+  #scene-sugoroku .turnlog{ margin: 4px 0 0; font-size: 11px; min-height:14px; }
+  #scene-sugoroku .goal-banner{ margin: 8px 0 0; padding: 6px 12px; }
+  #scene-sugoroku .btn-row{ margin-top: 10px; }
+
+  @media (max-height: 700px){
+    .stampbar{ padding-top:8px; padding-bottom:2px; }
+    .stamp{ width:36px; height:36px; }
+    #scene-sugoroku .mascot-row{ margin-bottom:4px; }
+    #scene-sugoroku .mascot-row img{ width:36px; }
+    #scene-sugoroku .dice{ width:38px; height:38px; margin-bottom:5px; }
+  }
+  @media (max-width: 350px){
+    #scene-sugoroku .board{ padding:6px; gap:4px; }
+    #scene-sugoroku .board-row{ gap:4px; }
+    #scene-sugoroku .tile .n{ font-size:9px; }
+  }
 
   /* square popup */
   .overlay{
@@ -410,60 +470,106 @@
   .cert{
     background: var(--paper);
     color: var(--ink);
-    border-radius: 20px;
-    padding: 30px 24px;
-    border: 4px double var(--gold-deep);
+    border-radius: 14px;
+    padding: 32px 22px 26px;
+    border: 3px solid var(--gold-deep);
+    outline: 7px solid var(--paper);
+    outline-offset: -14px;
+    box-shadow: 0 0 0 1px var(--gold-deep) inset;
     text-align:center;
     position: relative;
     overflow: hidden;
   }
   .cert::before{
     content: "";
-    position:absolute; inset: 10px;
-    border: 1.5px solid rgba(22,28,56,0.18);
-    border-radius: 12px;
+    position:absolute; inset: 8px;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
     pointer-events:none;
   }
-  .cert .cert-eyebrow{ font-size: 12px; letter-spacing:.16em; color: var(--coral-deep); font-weight:700; }
-  .cert h2{ font-family: var(--font-display); font-size: 30px; margin: 6px 0 2px; }
-  .cert .cert-date{ font-size: 12px; color: rgba(22,28,56,0.6); margin-bottom: 18px; }
+  .cert .cert-corner{
+    position:absolute; width:30px; height:30px;
+    border: 2px solid var(--gold);
+    opacity:.8;
+  }
+  .cert .cert-corner.tl{ top:14px; left:14px; border-right:none; border-bottom:none; }
+  .cert .cert-corner.tr{ top:14px; right:14px; border-left:none; border-bottom:none; }
+  .cert .cert-corner.bl{ bottom:14px; left:14px; border-right:none; border-top:none; }
+  .cert .cert-corner.br{ bottom:14px; right:14px; border-left:none; border-top:none; }
+  .cert .cert-eyebrow{ font-size: 11px; letter-spacing:.2em; color: var(--coral-deep); font-weight:700; }
+  .cert .cert-rule{ display:flex; align-items:center; justify-content:center; gap:8px; margin: 6px 0 4px; color: var(--gold-deep); }
+  .cert .cert-rule::before, .cert .cert-rule::after{ content:""; height:1px; width:34px; background: var(--gold); }
+  .cert h2{ font-family: var(--font-display); font-size: 32px; margin: 0 0 2px; letter-spacing:.04em; }
+  .cert .cert-date{ font-size: 12px; color: rgba(22,28,56,0.6); margin-bottom: 16px; }
   .cert .cert-title{
     font-family: var(--font-display);
-    font-size: 22px;
+    font-size: 20px;
     color: var(--coral-deep);
-    margin: 10px 0 16px;
+    margin: 8px 0 16px;
+    line-height: 1.4;
+    word-break: break-word;
   }
   .cert .cert-line{ font-size: 14px; line-height: 1.8; margin: 6px 0; text-align:left; word-break: break-word; }
   .cert .cert-line b{ color: var(--coral-deep); }
+  .cert .cert-bottom{
+    display:flex; align-items:flex-end; justify-content:center; gap:14px;
+    margin-top: 18px;
+  }
   .cert .cert-chars{
-    display:block;
-    width: 110px;
-    max-width: 40%;
+    width: 92px;
+    max-width: 38%;
     height:auto;
-    margin: 16px auto 0;
+    flex: none;
   }
   .cert .seal{
-    width: 64px; height:64px;
+    width: 58px; height:58px;
     border-radius: 50%;
     background: var(--coral);
     color: var(--paper);
     display:flex; align-items:center; justify-content:center;
-    font-size: 11px; font-weight:800; text-align:center; line-height:1.2;
-    margin: 14px auto 0;
+    font-size: 10px; font-weight:800; text-align:center; line-height:1.2;
     border: 3px solid var(--coral-deep);
+    box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px var(--gold);
     transform: rotate(-8deg);
+    flex: none;
   }
   .note{ text-align:center; font-size: 12px; color: var(--paper-dim); margin-top: 14px; }
 
+  /* ---------- Image preview modal (certificate save) ---------- */
+  .img-modal{
+    position: fixed; inset:0;
+    background: rgba(14,18,38,0.82);
+    display:flex; align-items:center; justify-content:center;
+    padding: 20px;
+    z-index: 60;
+  }
+  .img-modal .img-modal-card{
+    background: var(--paper);
+    border-radius: 18px;
+    padding: 16px 16px 14px;
+    max-width: 380px;
+    width: 100%;
+    max-height: 86vh;
+    overflow-y: auto;
+    text-align:center;
+    border: 3px solid var(--gold-deep);
+  }
+  .img-modal img{ max-width:100%; border-radius: 10px; display:block; margin: 0 auto 10px; }
+  .img-modal p{ color: var(--ink); font-size: 13px; margin: 0 0 12px; }
+
   @media (max-width: 420px){
-    .card{ width: 104px; height: 144px; }
+    .card{ width: 112px; height: 182px; }
     .card-front .q{ font-size: 30px; }
+    .card-back .icon{ font-size: 22px; margin-bottom:4px; }
+    .card-back .label{ font-size: 9.5px; margin-bottom:4px; }
+    .card-back .txt{ font-size: 11.5px; line-height:1.38; }
+    .card-face{ padding: 11px; }
   }
 
   @media (max-width: 340px){
     .stage{ padding-left: 12px; padding-right: 12px; }
     .mascot-row img{ width: 46px; }
-    .speech-bubble{ font-size: 12px; max-width: 190px; }
+    .speech-bubble{ font-size: 12px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -507,7 +613,7 @@
     <p class="lead">今日出かける前に、3枚のカードを1枚ずつタップ。<br>今日1日のちいさなミッションが出てきます。</p>
 
     <div class="mascot-row">
-      <img src="assets/chan-pi.webp" alt="ちゃんとぴ">
+      <img src="assets/characters/chan-pi-excited.webp" alt="ちゃんとぴ">
       <div class="speech-bubble">まずは今日のミッションをめくってみよう♪</div>
     </div>
 
@@ -525,7 +631,7 @@
     <p class="lead">サイコロをふって、マスに書かれたことをふたりでやってみよう。</p>
 
     <div class="mascot-row">
-      <img src="assets/chan-pi.webp" alt="ちゃんとぴ">
+      <img src="assets/characters/chan-pi-cheer.webp" alt="ちゃんとぴ">
       <div class="speech-bubble">サイコロをふって、ゴールを目指そう！</div>
     </div>
 
@@ -538,7 +644,7 @@
     </div>
 
     <div class="goal-banner" id="goalBanner" style="display:none;">
-      <img src="assets/chan-pi.webp" alt="ちゃんとぴ">
+      <img src="assets/characters/chan-pi-celebrate.webp" alt="ちゃんとぴ">
       <div class="txt">ゴールおめでとう！♡</div>
     </div>
 
@@ -554,7 +660,7 @@
     <p class="lead">答えると、1周年の表彰状が出てきます。</p>
 
     <div class="mascot-row">
-      <img src="assets/chan-pi.webp" alt="ちゃんとぴ">
+      <img src="assets/characters/chan-pi-love.webp" alt="ちゃんとぴ">
       <div class="speech-bubble">今日の思い出をいっしょにふりかえろう♪</div>
     </div>
 
@@ -615,6 +721,8 @@
     <button class="btn" onclick="closePopup()">OK、つぎへ</button>
   </div>
 </div>
+
+<div id="imgModal" style="display:none;"></div>
 
 <script>
 (function(){
@@ -681,6 +789,18 @@
     '記念日サイコロ運 伝説級'
   ];
 
+  // Emoji -> matching SVG illustration. Anything not listed here stays as emoji.
+  var ICON_MAP = {
+    '🍡':'dango', '📸':'camera', '🍝':'pasta', '🎲':'dice', '🏆':'trophy',
+    '⭐':'star', '✨':'sparkle', '💛':'heart', '💬':'bubble',
+    '🎯':'target', '🌀':'swirl', '☕':'coffee', '🚩':'flag', '🏁':'finish'
+  };
+  function iconHtml(emoji, extraClass){
+    var name = ICON_MAP[emoji];
+    if(!name) return emoji;
+    return '<img class="icon-illustration' + (extraClass ? ' ' + extraClass : '') + '" src="assets/icons/' + name + '.svg" alt="" aria-hidden="true">';
+  }
+
   function $(id){ return document.getElementById(id); }
 
   function goTo(name){
@@ -692,8 +812,33 @@
     $('stamp3').classList.toggle('active', name==='quiz');
     save();
     window.scrollTo({ top:0, behavior:'smooth' });
+    scheduleFit();
   }
   window.goTo = goTo;
+
+  // ---- Stage 2: fit the board (and controls) to one screen where possible ----
+  function fitBoard(){
+    var scene = $('scene-sugoroku');
+    var board = $('board');
+    if(!scene || !board || !scene.classList.contains('visible')) return;
+    var height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    var top = board.getBoundingClientRect().top;
+    var diceArea = scene.querySelector('.dice-area');
+    var banner = $('goalBanner');
+    var btnRow = scene.querySelector('.btn-row');
+    var bannerH = (banner && banner.style.display !== 'none') ? banner.getBoundingClientRect().height : 0;
+    var footer = (diceArea ? diceArea.getBoundingClientRect().height : 110) + bannerH + (btnRow ? btnRow.getBoundingClientRect().height : 0) + 22;
+    var available = Math.max(172, Math.min(440, Math.floor(height - top - footer)));
+    board.style.setProperty('--fit-board-height', available + 'px');
+  }
+  var fitScheduled = false;
+  function scheduleFit(){
+    if(fitScheduled) return;
+    fitScheduled = true;
+    requestAnimationFrame(function(){ fitScheduled = false; fitBoard(); });
+  }
+  window.addEventListener('resize', scheduleFit, { passive:true });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', scheduleFit, { passive:true });
 
   // ---- Scene 1: cards ----
   function renderCards(){
@@ -705,7 +850,7 @@
       card.innerHTML =
         '<div class="card-inner">' +
           '<div class="card-face card-front"><div class="q">?</div><div class="hint">タップしてめくる</div></div>' +
-          '<div class="card-face card-back"><div class="icon">'+m.icon+'</div><div class="label">'+m.label+'</div><div class="txt">'+m.text+'</div></div>' +
+          '<div class="card-face card-back"><div class="icon">'+iconHtml(m.icon)+'</div><div class="label">'+m.label+'</div><div class="txt">'+m.text+'</div></div>' +
         '</div>';
       card.addEventListener('click', function(){
         if(state.cardsFlipped[i]) return;
@@ -741,13 +886,14 @@
           (idx < current ? ' done' : '') +
           (idx === current ? ' current' : '');
         tile.id = 'tile-' + idx;
-        var icon = sq.icon || '';
+        var icon = sq.icon ? iconHtml(sq.icon) : '';
         tile.innerHTML = '<div class="ic">'+icon+'</div><div class="n">'+idx+'</div>';
         row.appendChild(tile);
       }
       board.appendChild(row);
     }
     placeToken();
+    scheduleFit();
   }
   function placeToken(){
     document.querySelectorAll('.token').forEach(function(t){ t.remove(); });
@@ -755,7 +901,7 @@
     if(tile){
       var tok = document.createElement('div');
       tok.className = 'token';
-      tok.textContent = '💛';
+      tok.innerHTML = iconHtml('💛');
       tile.appendChild(tok);
     }
   }
@@ -763,6 +909,7 @@
   function showGoalBanner(){
     var el = $('goalBanner');
     if(el) el.style.display = 'flex';
+    scheduleFit();
   }
 
   var rolling = false;
@@ -801,7 +948,7 @@
   // Shows the popup for a square, then calls onClose once the player dismisses it.
   function showSquarePopup(sq, onClose){
     $('popupTag').textContent = TAGS[sq.type] || 'マス';
-    $('popupIcon').textContent = sq.icon;
+    $('popupIcon').innerHTML = iconHtml(sq.icon);
     $('popupMsg').textContent = sq.text;
     $('overlay').classList.add('show');
     window._afterPopup = onClose;
@@ -915,21 +1062,24 @@
     if(score) lines += '<p class="cert-line"><b>採点：</b>' + escapeHtml(score) + '</p>';
 
     var html =
-      '<div class="cert">' +
+      '<div class="cert" id="certEl">' +
+        '<div class="cert-corner tl"></div><div class="cert-corner tr"></div>' +
+        '<div class="cert-corner bl"></div><div class="cert-corner br"></div>' +
         '<p class="cert-eyebrow">CERTIFICATE OF 1ST ANNIVERSARY</p>' +
         '<h2>表彰状</h2>' +
         '<p class="cert-date">' + dateStr + '</p>' +
+        '<div class="cert-rule">' + iconHtml('⭐') + '</div>' +
         '<p class="cert-title">称号：' + escapeHtml(state.cert.title) + '</p>' +
         lines +
-        '<img class="cert-chars" src="assets/chan-pi.webp" alt="ちゃんとぴ">' +
-        '<div class="seal">1st<br>ANNIV</div>' +
+        '<div class="cert-bottom">' +
+          '<img class="cert-chars" src="assets/characters/chan-pi-celebrate.webp" alt="ちゃんとぴ">' +
+          '<div class="seal">1st<br>ANNIV</div>' +
+        '</div>' +
       '</div>' +
-      '<p class="note">📸 この表彰状はスクリーンショットで保存してね</p>' +
       '<div class="btn-row">' +
         '<button class="btn secondary" onclick="saveCertAsImage()">📥 画像として保存</button>' +
         '<button class="btn secondary" onclick="resetAll()">もう一度あそぶ</button>' +
-      '</div>' +
-      '<div id="certImgWrap" style="display:none; margin-top:16px;"></div>';
+      '</div>';
 
     $('certWrap').innerHTML = html;
     $('certWrap').style.display = 'block';
@@ -939,33 +1089,81 @@
   }
   window.showCertificate = showCertificate;
 
+  var CERT_FILENAME = '1st_anniversary_certificate.png';
+
+  function openImgModal(dataUrl, caption){
+    var modal = $('imgModal');
+    if(!modal) return;
+    modal.innerHTML =
+      '<div class="img-modal" onclick="if(event.target===this) closeImgModal();">' +
+        '<div class="img-modal-card">' +
+          '<img src="' + dataUrl + '" alt="表彰状の画像">' +
+          '<p>' + caption + '</p>' +
+          '<button class="btn secondary" onclick="closeImgModal()">閉じる</button>' +
+        '</div>' +
+      '</div>';
+    modal.style.display = 'block';
+  }
+  function closeImgModal(){
+    var modal = $('imgModal');
+    if(modal){ modal.style.display = 'none'; modal.innerHTML = ''; }
+  }
+  window.closeImgModal = closeImgModal;
+
+  function fontsReady(){
+    try{
+      if(document.fonts && document.fonts.ready) return document.fonts.ready;
+    }catch(e){}
+    return Promise.resolve();
+  }
+
   function saveCertAsImage(){
-    var certEl = document.querySelector('#certWrap .cert');
+    var certEl = $('certEl');
     if(typeof html2canvas !== 'function' || !certEl){ return; }
-    html2canvas(certEl, { backgroundColor: null, scale: 2 }).then(function(canvas){
-      var dataUrl = canvas.toDataURL('image/png');
+    fontsReady().then(function(){
+      return html2canvas(certEl, { backgroundColor: null, scale: 2 });
+    }).then(function(canvas){
       var isIOS = /iP(hone|od|ad)/.test(navigator.userAgent || '');
+
+      if(isIOS && window.File && navigator.canShare){
+        canvas.toBlob(function(blob){
+          if(!blob){ fallbackToModal(canvas); return; }
+          try{
+            var file = new File([blob], CERT_FILENAME, { type:'image/png' });
+            if(navigator.canShare({ files:[file] })){
+              navigator.share({ files:[file], title:'1周年記念 表彰状' }).catch(function(){
+                fallbackToModal(canvas);
+              });
+              return;
+            }
+          }catch(e){ /* fall through */ }
+          fallbackToModal(canvas);
+        }, 'image/png');
+        return;
+      }
+
       if(!isIOS){
         try{
+          var dataUrl = canvas.toDataURL('image/png');
           var a = document.createElement('a');
           a.href = dataUrl;
-          a.download = 'anniversary-certificate.png';
+          a.download = CERT_FILENAME;
           document.body.appendChild(a);
           a.click();
           a.remove();
-        }catch(e){ /* fall through to inline preview below */ }
+          return;
+        }catch(e){ /* fall through to modal */ }
       }
-      var wrap = $('certImgWrap');
-      if(wrap){
-        wrap.innerHTML =
-          '<img src="' + dataUrl + '" alt="表彰状の画像" style="max-width:100%;border-radius:14px;display:block;margin:0 auto;">' +
-          '<p class="note">📱 iPhoneの方は、画像を長押しして「写真に保存」してね</p>';
-        wrap.style.display = 'block';
-        wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
-      }
-    }).catch(function(){ /* fail soft: the screenshot note above still works */ });
+
+      fallbackToModal(canvas);
+    }).catch(function(){ /* html2canvas itself failed: nothing to show */ });
   }
   window.saveCertAsImage = saveCertAsImage;
+
+  function fallbackToModal(canvas){
+    var dataUrl = canvas.toDataURL('image/png');
+    openImgModal(dataUrl, '📱 画像を長押しして「写真に保存」してね');
+  }
 
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, function(c){
@@ -982,6 +1180,8 @@
     $('goalBanner').style.display = 'none';
     $('certWrap').style.display = 'none';
     $('certWrap').innerHTML = '';
+    $('dice').innerHTML = iconHtml('🎲');
+    closeImgModal();
     document.querySelectorAll('.opts .opt, .score-row .score-btn').forEach(function(o){ o.classList.remove('sel'); });
     if($('q3')) $('q3').value = '';
     if($('q4')) $('q4').value = '';
@@ -1038,8 +1238,37 @@
     }
   }
 
+  // One-time swap of the static emoji markup (stamps, heart-row, idle dice face)
+  // to illustrations. Run once at load — these nodes are never recreated.
+  function initStaticIcons(){
+    ['stamp1','stamp2','stamp3'].forEach(function(id){
+      var el = $(id);
+      if(el) el.innerHTML = iconHtml(el.textContent.trim());
+    });
+    var dice = $('dice');
+    if(dice) dice.innerHTML = iconHtml(dice.textContent.trim());
+    var heartRow = document.querySelector('.heart-row');
+    if(heartRow){
+      var frag = document.createDocumentFragment();
+      Array.from(heartRow.textContent).forEach(function(ch){
+        if(ch === '·' || !ch.trim()) return;
+        if(ICON_MAP[ch]){
+          var span = document.createElement('span');
+          span.innerHTML = iconHtml(ch);
+          frag.appendChild(span.firstChild);
+        } else {
+          var txt = document.createElement('span');
+          txt.textContent = ch;
+          frag.appendChild(txt);
+        }
+      });
+      heartRow.replaceChildren(frag);
+    }
+  }
+
   function start(data){
     var hasData = data && Object.keys(data).length > 0;
+    initStaticIcons();
     wireQuiz();
     boot(hasData ? data : (load() || state));
   }
