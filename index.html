@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Yomogi&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
   :root{
     /* palette: navy game-box + marigold/coral accents on cream paper */
@@ -116,6 +117,7 @@
     border: none;
     border-radius: 999px;
     padding: 14px 30px;
+    min-height: 48px;
     box-shadow: 0 5px 0 var(--gold-deep);
     cursor: pointer;
     display:block;
@@ -134,17 +136,55 @@
   .btn[disabled]{ opacity:.35; pointer-events:none; }
   .btn-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:18px; }
 
+  /* ---------- Mascot / speech bubble ---------- */
+  .mascot-row{
+    display:flex; align-items:flex-end; gap: 10px;
+    margin: 0 0 16px;
+  }
+  .mascot-row img{
+    width: 56px; height:auto; flex: none;
+    filter: drop-shadow(0 3px 4px rgba(14,18,38,0.35));
+  }
+  .speech-bubble{
+    position: relative;
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 600;
+    box-shadow: 0 4px 0 rgba(14,18,38,0.25);
+    max-width: 230px;
+  }
+  .speech-bubble::before{
+    content:"";
+    position:absolute; left:-8px; bottom:14px;
+    border-width: 7px 8px 7px 0;
+    border-style: solid;
+    border-color: transparent var(--paper) transparent transparent;
+  }
+
   /* ---------- Scene 0: Title ---------- */
   .title-card{
     background: radial-gradient(circle at 30% 20%, rgba(243,165,59,0.18), transparent 60%);
     border: 2px dashed var(--line-on-navy);
     border-radius: 26px;
-    padding: 46px 22px 36px;
+    padding: 34px 22px 30px;
     margin-top: 10px;
     text-align:center;
   }
-  .title-emoji{ font-size: 44px; margin-bottom: 6px; }
-  .heart-row{ font-size: 20px; letter-spacing: 6px; margin: 14px 0 22px; opacity:.8; }
+  .hero-chars{
+    display:block;
+    width: 150px;
+    max-width: 55%;
+    height:auto;
+    margin: 0 auto 6px;
+    filter: drop-shadow(0 4px 6px rgba(14,18,38,0.35));
+    animation: heroFade .6s ease;
+  }
+  @keyframes heroFade{ from{ opacity:0; transform: translateY(8px); } to{ opacity:1; transform:none; } }
+  .heart-row{ font-size: 20px; letter-spacing: 6px; margin: 10px 0 18px; opacity:.8; }
 
   /* ---------- Scene 1: Mission cards ---------- */
   .cards{
@@ -201,6 +241,7 @@
   .tile{
     flex: 1;
     aspect-ratio: 1;
+    min-width: 0;
     border-radius: 10px;
     background: var(--paper-dim);
     color: var(--ink);
@@ -215,6 +256,10 @@
   .tile.done{ background: rgba(243,165,59,0.35); }
   .tile.start{ background: var(--gold); }
   .tile.goal{ background: var(--coral); color: var(--paper); }
+  .tile.current{
+    box-shadow: 0 0 0 3px var(--coral), 0 0 10px 2px rgba(255,111,89,0.55);
+    z-index: 1;
+  }
   .tile .token{
     position:absolute; top:-14px; left:50%; transform: translateX(-50%);
     font-size: 22px;
@@ -222,6 +267,24 @@
     filter: drop-shadow(0 3px 2px rgba(0,0,0,.3));
   }
   @keyframes bounce{ from{ transform: translate(-50%, 0); } to{ transform: translate(-50%, -5px); } }
+
+  .goal-banner{
+    display:flex; align-items:center; justify-content:center; gap: 10px;
+    margin: 14px 0 4px;
+    background: rgba(243,165,59,0.14);
+    border: 2px dashed var(--gold);
+    border-radius: 16px;
+    padding: 10px 14px;
+  }
+  .goal-banner img{ width: 48px; height:auto; animation: goalBounce .9s ease 1; }
+  .goal-banner .txt{ font-weight:800; font-family: var(--font-display); font-size: 16px; color: var(--gold); }
+  @keyframes goalBounce{
+    0%{ transform: translateY(0); }
+    30%{ transform: translateY(-10px); }
+    55%{ transform: translateY(0); }
+    75%{ transform: translateY(-4px); }
+    100%{ transform: translateY(0); }
+  }
 
   .dice-area{ text-align:center; margin: 10px 0 6px; }
   .dice{
@@ -285,8 +348,15 @@
     border-radius: 18px;
     padding: 18px 18px 16px;
     margin-bottom: 16px;
+    transition: border-color .2s ease, background .2s ease;
   }
-  .quiz-q{ font-weight:700; margin-bottom: 12px; font-size: 15px; }
+  .quiz-block.answered{
+    border-color: rgba(243,165,59,0.55);
+    background: rgba(243,165,59,0.07);
+  }
+  .quiz-q{ font-weight:700; margin-bottom: 12px; font-size: 15px; display:flex; align-items:center; gap:6px; }
+  .quiz-q .check{ color: var(--gold); font-size: 13px; opacity:0; transition: opacity .2s ease; }
+  .quiz-block.answered .quiz-q .check{ opacity:1; }
   .opts{ display:flex; flex-wrap:wrap; gap: 8px; }
   .opt{
     font-family: var(--font-body);
@@ -296,7 +366,9 @@
     background: rgba(251,241,225,0.08);
     border: 2px solid var(--line-on-navy);
     border-radius: 999px;
-    padding: 9px 16px;
+    padding: 11px 18px;
+    min-height: 40px;
+    display:flex; align-items:center;
     cursor:pointer;
   }
   .opt.sel{
@@ -308,14 +380,14 @@
   .freetext{
     width:100%;
     font-family: var(--font-body);
-    font-size: 14px;
+    font-size: 16px;
     color: var(--ink);
     background: var(--paper);
     border: none;
     border-radius: 12px;
     padding: 12px 14px;
     resize: vertical;
-    min-height: 44px;
+    min-height: 46px;
   }
   .score-row{ display:flex; gap:8px; flex-wrap:wrap; }
   .score-btn{
@@ -327,7 +399,9 @@
     background: rgba(251,241,225,0.08);
     border: 2px solid var(--line-on-navy);
     border-radius: 12px;
-    padding: 10px 0;
+    padding: 12px 0;
+    min-height: 40px;
+    display:flex; align-items:center; justify-content:center;
     cursor:pointer;
   }
   .score-btn.sel{ background: var(--coral); border-color: var(--coral-deep); color: var(--paper); }
@@ -359,8 +433,15 @@
     color: var(--coral-deep);
     margin: 10px 0 16px;
   }
-  .cert .cert-line{ font-size: 14px; line-height: 1.8; margin: 6px 0; text-align:left; }
+  .cert .cert-line{ font-size: 14px; line-height: 1.8; margin: 6px 0; text-align:left; word-break: break-word; }
   .cert .cert-line b{ color: var(--coral-deep); }
+  .cert .cert-chars{
+    display:block;
+    width: 110px;
+    max-width: 40%;
+    height:auto;
+    margin: 16px auto 0;
+  }
   .cert .seal{
     width: 64px; height:64px;
     border-radius: 50%;
@@ -368,7 +449,7 @@
     color: var(--paper);
     display:flex; align-items:center; justify-content:center;
     font-size: 11px; font-weight:800; text-align:center; line-height:1.2;
-    margin: 16px auto 0;
+    margin: 14px auto 0;
     border: 3px solid var(--coral-deep);
     transform: rotate(-8deg);
   }
@@ -377,6 +458,21 @@
   @media (max-width: 420px){
     .card{ width: 104px; height: 144px; }
     .card-front .q{ font-size: 30px; }
+  }
+
+  @media (max-width: 340px){
+    .stage{ padding-left: 12px; padding-right: 12px; }
+    .mascot-row img{ width: 46px; }
+    .speech-bubble{ font-size: 12px; max-width: 190px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 </style>
 </head>
@@ -395,7 +491,7 @@
   <!-- Scene 0: Title -->
   <section class="scene" id="scene-title">
     <div class="title-card">
-      <div class="title-emoji">🎉</div>
+      <img class="hero-chars" src="assets/chan-pi.webp" alt="ちゃんとぴ">
       <p class="eyebrow">HAPPY 1ST ANNIVERSARY</p>
       <h1 class="display">祝、1周年。</h1>
       <div class="heart-row">· ⭐ · 🍡 · 📸 · 🍝 · ⭐ ·</div>
@@ -410,6 +506,11 @@
     <h2 class="display">カードをめくろう</h2>
     <p class="lead">今日出かける前に、3枚のカードを1枚ずつタップ。<br>今日1日のちいさなミッションが出てきます。</p>
 
+    <div class="mascot-row">
+      <img src="assets/chan-pi.webp" alt="ちゃんとぴ">
+      <div class="speech-bubble">まずは今日のミッションをめくってみよう♪</div>
+    </div>
+
     <div class="cards" id="cardArea"></div>
 
     <div class="btn-row">
@@ -423,12 +524,22 @@
     <h2 class="display">ゴールまで進もう</h2>
     <p class="lead">サイコロをふって、マスに書かれたことをふたりでやってみよう。</p>
 
+    <div class="mascot-row">
+      <img src="assets/chan-pi.webp" alt="ちゃんとぴ">
+      <div class="speech-bubble">サイコロをふって、ゴールを目指そう！</div>
+    </div>
+
     <div class="board" id="board"></div>
 
     <div class="dice-area">
       <div class="dice" id="dice">🎲</div>
       <button class="btn" id="rollBtn" onclick="rollDice()">サイコロをふる</button>
       <p class="turnlog" id="turnlog"></p>
+    </div>
+
+    <div class="goal-banner" id="goalBanner" style="display:none;">
+      <img src="assets/chan-pi.webp" alt="ちゃんとぴ">
+      <div class="txt">ゴールおめでとう！♡</div>
     </div>
 
     <div class="btn-row">
@@ -442,8 +553,13 @@
     <h2 class="display">最後にひとつずつ</h2>
     <p class="lead">答えると、1周年の表彰状が出てきます。</p>
 
-    <div class="quiz-block">
-      <p class="quiz-q">Q1. 今日いちばん楽しかったのは？</p>
+    <div class="mascot-row">
+      <img src="assets/chan-pi.webp" alt="ちゃんとぴ">
+      <div class="speech-bubble">今日の思い出をいっしょにふりかえろう♪</div>
+    </div>
+
+    <div class="quiz-block" id="qb-q1">
+      <p class="quiz-q">Q1. 今日いちばん楽しかったのは？ <span class="check">✓</span></p>
       <div class="opts" data-q="q1">
         <div class="opt" data-v="食品サンプル作り">食品サンプル作り</div>
         <div class="opt" data-v="写真館">写真館</div>
@@ -452,8 +568,8 @@
       </div>
     </div>
 
-    <div class="quiz-block">
-      <p class="quiz-q">Q2. 今日のMVP（一番がんばったのは）？</p>
+    <div class="quiz-block" id="qb-q2">
+      <p class="quiz-q">Q2. 今日のMVP（一番がんばったのは）？ <span class="check">✓</span></p>
       <div class="opts" data-q="q2">
         <div class="opt" data-v="わたし">わたし</div>
         <div class="opt" data-v="あなた">あなた</div>
@@ -461,18 +577,18 @@
       </div>
     </div>
 
-    <div class="quiz-block">
-      <p class="quiz-q">Q3. 今日を一言で言うと？</p>
+    <div class="quiz-block" id="qb-q3">
+      <p class="quiz-q">Q3. 今日を一言で言うと？ <span class="check">✓</span></p>
       <textarea class="freetext" id="q3" placeholder="例：しあわせすぎる1日" maxlength="60"></textarea>
     </div>
 
-    <div class="quiz-block">
-      <p class="quiz-q">Q4. 2年目にふたりでしたいことは？</p>
+    <div class="quiz-block" id="qb-q4">
+      <p class="quiz-q">Q4. 2年目にふたりでしたいことは？ <span class="check">✓</span></p>
       <textarea class="freetext" id="q4" placeholder="例：一緒に旅行に行く" maxlength="60"></textarea>
     </div>
 
-    <div class="quiz-block">
-      <p class="quiz-q">Q5. 今日を100点満点で採点すると？</p>
+    <div class="quiz-block" id="qb-q5">
+      <p class="quiz-q">Q5. 今日を100点満点で採点すると？ <span class="check">✓</span></p>
       <div class="score-row" data-q="q5">
         <div class="score-btn" data-v="80点">80</div>
         <div class="score-btn" data-v="90点">90</div>
@@ -507,7 +623,8 @@
     scene: 'title',
     cardsFlipped: [false,false,false],
     pos: 0,
-    quiz: { q1:null, q2:null, q3:'', q4:'', q5:null }
+    quiz: { q1:null, q2:null, q3:'', q4:'', q5:null },
+    cert: null
   };
 
   function save(){
@@ -610,6 +727,7 @@
     var board = $('board');
     board.innerHTML = '';
     var cols = 5;
+    var current = Math.max(1, state.pos || 1);
     for(var r=0; r<4; r++){
       var row = document.createElement('div');
       row.className = 'board-row' + (r % 2 === 1 ? ' reverse' : '');
@@ -617,7 +735,11 @@
         var idx = r*cols + c + 1;
         var sq = SQUARES[idx];
         var tile = document.createElement('div');
-        tile.className = 'tile' + (idx===1?' start':'') + (idx===LAST?' goal':'') + (idx < state.pos ? ' done' : '');
+        tile.className = 'tile' +
+          (idx===1?' start':'') +
+          (idx===LAST?' goal':'') +
+          (idx < current ? ' done' : '') +
+          (idx === current ? ' current' : '');
         tile.id = 'tile-' + idx;
         var icon = sq.icon || '';
         tile.innerHTML = '<div class="ic">'+icon+'</div><div class="n">'+idx+'</div>';
@@ -636,6 +758,11 @@
       tok.textContent = '💛';
       tile.appendChild(tok);
     }
+  }
+
+  function showGoalBanner(){
+    var el = $('goalBanner');
+    if(el) el.style.display = 'flex';
   }
 
   var rolling = false;
@@ -668,49 +795,63 @@
     state.pos = target;
     renderBoard();
     save();
-    setTimeout(function(){ landOn(state.pos); }, 350);
+    setTimeout(function(){ landOn(state.pos, 0); }, 350);
   }
 
-  function landOn(idx){
-    var sq = SQUARES[idx];
-    if(!sq){ rolling = false; $('rollBtn').disabled = (state.pos>=LAST); return; }
-
-    if(sq.type === 'start'){
-      rolling = false;
-      $('rollBtn').disabled = false;
-      return;
-    }
-
+  // Shows the popup for a square, then calls onClose once the player dismisses it.
+  function showSquarePopup(sq, onClose){
     $('popupTag').textContent = TAGS[sq.type] || 'マス';
     $('popupIcon').textContent = sq.icon;
     $('popupMsg').textContent = sq.text;
     $('overlay').classList.add('show');
+    window._afterPopup = onClose;
+  }
 
-    window._afterPopup = function(){
-      if(sq.type === 'warp' && sq.jump){
+  // Ends the current turn: re-enables the dice, or opens stage 3 on goal.
+  function finishTurn(sq){
+    rolling = false;
+    if((sq && sq.type === 'goal') || state.pos >= LAST){
+      $('rollBtn').disabled = true;
+      $('toQuizBtn').disabled = false;
+      showGoalBanner();
+    } else {
+      $('rollBtn').disabled = false;
+    }
+  }
+
+  // depth guards against any future warp->warp chain in the board data.
+  function landOn(idx, depth){
+    depth = depth || 0;
+    var sq = SQUARES[idx];
+    if(!sq){ finishTurn(sq); return; }
+
+    if(sq.type === 'start'){
+      finishTurn(sq);
+      return;
+    }
+
+    showSquarePopup(sq, function(){
+      if(sq.type === 'warp' && sq.jump && depth < 3){
         var newPos = Math.max(1, Math.min(state.pos + sq.jump, LAST));
         state.pos = newPos;
         renderBoard();
         save();
-      }
-      if(sq.type === 'goal' || state.pos >= LAST){
-        $('rollBtn').disabled = true;
-        $('toQuizBtn').disabled = false;
-        rolling = false;
+        landOn(newPos, depth + 1);
       } else {
-        rolling = false;
-        $('rollBtn').disabled = false;
+        finishTurn(sq);
       }
-    };
+    });
   }
 
   function closePopup(){
     $('overlay').classList.remove('show');
-    if(window._afterPopup){ window._afterPopup(); window._afterPopup = null; }
+    if(window._afterPopup){ var fn = window._afterPopup; window._afterPopup = null; fn(); }
   }
   window.closePopup = closePopup;
 
   // ---- Scene 3: quiz ----
+  // Wired exactly once at true page load — these elements are static markup,
+  // never recreated, so re-wiring on every reset would stack duplicate listeners.
   function wireQuiz(){
     document.querySelectorAll('.opts').forEach(function(group){
       var q = group.getAttribute('data-q');
@@ -720,6 +861,7 @@
           opt.classList.add('sel');
           state.quiz[q] = opt.getAttribute('data-v');
           save();
+          markAnswered(q);
         });
       });
     });
@@ -731,45 +873,99 @@
           opt.classList.add('sel');
           state.quiz[q] = opt.getAttribute('data-v');
           save();
+          markAnswered(q);
         });
       });
     });
-    $('q3').addEventListener('input', function(){ state.quiz.q3 = this.value; save(); });
-    $('q4').addEventListener('input', function(){ state.quiz.q4 = this.value; save(); });
+    $('q3').addEventListener('input', function(){ state.quiz.q3 = this.value; save(); markAnswered('q3'); });
+    $('q4').addEventListener('input', function(){ state.quiz.q4 = this.value; save(); markAnswered('q4'); });
   }
 
-  function showCertificate(){
+  function markAnswered(q){
+    var block = $('qb-' + q);
+    if(!block) return;
+    var v = state.quiz[q];
+    block.classList.toggle('answered', !!(v && String(v).length));
+  }
+  function refreshAnsweredMarks(){
+    ['q1','q2','q3','q4','q5'].forEach(markAnswered);
+  }
+
+  function showCertificate(opts){
+    opts = opts || {};
+    if(!state.cert) state.cert = {};
+    if(!state.cert.title){
+      state.cert.title = TITLES[Math.floor(Math.random()*TITLES.length)];
+      save();
+    }
+
     var d = new Date();
     var dateStr = d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
-    var title = TITLES[Math.floor(Math.random()*TITLES.length)];
-    var fav = state.quiz.q1 || 'すべての瞬間';
-    var mvp = state.quiz.q2 || 'ふたり';
-    var mood = state.quiz.q3 || '';
-    var next = state.quiz.q4 || '';
-    var score = state.quiz.q5 || '100点';
+    var fav = state.quiz.q1;
+    var mvp = state.quiz.q2;
+    var mood = state.quiz.q3;
+    var next = state.quiz.q4;
+    var score = state.quiz.q5;
+
+    var lines = '<p class="cert-line">この証は、1周年を迎えたふたりが、食品サンプル作り・写真館・イタリアンディナーのすべてのミッションをやり遂げたことを記念して贈られるものです。</p>';
+    if(fav) lines += '<p class="cert-line"><b>今日いちばん楽しかった瞬間：</b>' + escapeHtml(fav) + '</p>';
+    if(mvp) lines += '<p class="cert-line"><b>今日のMVP：</b>' + escapeHtml(mvp) + '</p>';
+    if(mood) lines += '<p class="cert-line"><b>今日をひとことで：</b>' + escapeHtml(mood) + '</p>';
+    if(next) lines += '<p class="cert-line"><b>2年目の目標：</b>' + escapeHtml(next) + '</p>';
+    if(score) lines += '<p class="cert-line"><b>採点：</b>' + escapeHtml(score) + '</p>';
 
     var html =
       '<div class="cert">' +
         '<p class="cert-eyebrow">CERTIFICATE OF 1ST ANNIVERSARY</p>' +
         '<h2>表彰状</h2>' +
         '<p class="cert-date">' + dateStr + '</p>' +
-        '<p class="cert-title">称号：' + title + '</p>' +
-        '<p class="cert-line">この証は、1周年を迎えたふたりが、食品サンプル作り・写真館・イタリアンディナーのすべてのミッションをやり遂げたことを記念して贈られるものです。</p>' +
-        '<p class="cert-line"><b>今日いちばん楽しかった瞬間：</b>' + escapeHtml(fav) + '</p>' +
-        '<p class="cert-line"><b>今日のMVP：</b>' + escapeHtml(mvp) + '</p>' +
-        (mood ? '<p class="cert-line"><b>今日をひとことで：</b>' + escapeHtml(mood) + '</p>' : '') +
-        (next ? '<p class="cert-line"><b>2年目の目標：</b>' + escapeHtml(next) + '</p>' : '') +
-        '<p class="cert-line"><b>採点：</b>' + escapeHtml(score) + '</p>' +
+        '<p class="cert-title">称号：' + escapeHtml(state.cert.title) + '</p>' +
+        lines +
+        '<img class="cert-chars" src="assets/chan-pi.webp" alt="ちゃんとぴ">' +
         '<div class="seal">1st<br>ANNIV</div>' +
       '</div>' +
       '<p class="note">📸 この表彰状はスクリーンショットで保存してね</p>' +
-      '<div class="btn-row"><button class="btn secondary" onclick="resetAll()">もう一度あそぶ</button></div>';
+      '<div class="btn-row">' +
+        '<button class="btn secondary" onclick="saveCertAsImage()">📥 画像として保存</button>' +
+        '<button class="btn secondary" onclick="resetAll()">もう一度あそぶ</button>' +
+      '</div>' +
+      '<div id="certImgWrap" style="display:none; margin-top:16px;"></div>';
 
     $('certWrap').innerHTML = html;
     $('certWrap').style.display = 'block';
-    $('certWrap').scrollIntoView({ behavior:'smooth', block:'start' });
+    if(!opts.silent){
+      $('certWrap').scrollIntoView({ behavior:'smooth', block:'start' });
+    }
   }
   window.showCertificate = showCertificate;
+
+  function saveCertAsImage(){
+    var certEl = document.querySelector('#certWrap .cert');
+    if(typeof html2canvas !== 'function' || !certEl){ return; }
+    html2canvas(certEl, { backgroundColor: null, scale: 2 }).then(function(canvas){
+      var dataUrl = canvas.toDataURL('image/png');
+      var isIOS = /iP(hone|od|ad)/.test(navigator.userAgent || '');
+      if(!isIOS){
+        try{
+          var a = document.createElement('a');
+          a.href = dataUrl;
+          a.download = 'anniversary-certificate.png';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        }catch(e){ /* fall through to inline preview below */ }
+      }
+      var wrap = $('certImgWrap');
+      if(wrap){
+        wrap.innerHTML =
+          '<img src="' + dataUrl + '" alt="表彰状の画像" style="max-width:100%;border-radius:14px;display:block;margin:0 auto;">' +
+          '<p class="note">📱 iPhoneの方は、画像を長押しして「写真に保存」してね</p>';
+        wrap.style.display = 'block';
+        wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      }
+    }).catch(function(){ /* fail soft: the screenshot note above still works */ });
+  }
+  window.saveCertAsImage = saveCertAsImage;
 
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, function(c){
@@ -778,49 +974,73 @@
   }
 
   function resetAll(){
-    state = { scene:'title', cardsFlipped:[false,false,false], pos:0, quiz:{ q1:null,q2:null,q3:'',q4:'',q5:null } };
+    state = { scene:'title', cardsFlipped:[false,false,false], pos:0, quiz:{ q1:null,q2:null,q3:'',q4:'',q5:null }, cert:null };
     save();
-    boot(state);
+    renderCards();
+    checkCardsDone();
+    renderBoard();
+    $('goalBanner').style.display = 'none';
+    $('certWrap').style.display = 'none';
+    $('certWrap').innerHTML = '';
+    document.querySelectorAll('.opts .opt, .score-row .score-btn').forEach(function(o){ o.classList.remove('sel'); });
+    if($('q3')) $('q3').value = '';
+    if($('q4')) $('q4').value = '';
+    refreshAnsweredMarks();
+    $('toSugorokuBtn').disabled = true;
+    $('toQuizBtn').disabled = true;
+    $('rollBtn').disabled = false;
     goTo('title');
   }
   window.resetAll = resetAll;
 
+  // Applies a loaded/initial state to the DOM. Does NOT (re)attach any
+  // event listeners — wireQuiz() runs exactly once, separately, below.
   function boot(initial){
     state = initial || state;
+    if(!state.quiz) state.quiz = { q1:null, q2:null, q3:'', q4:'', q5:null };
+    if(!('cert' in state)) state.cert = null;
+
     renderCards();
     checkCardsDone();
     renderBoard();
-    wireQuiz();
+
     $('toSugorokuBtn').disabled = !state.cardsFlipped.every(Boolean);
     $('toQuizBtn').disabled = !(state.pos >= LAST);
     $('rollBtn').disabled = (state.pos >= LAST);
-    if(state.quiz){
-      document.querySelectorAll('.opts').forEach(function(group){
-        var q = group.getAttribute('data-q');
-        var v = state.quiz[q];
-        if(v){
-          group.querySelectorAll('.opt').forEach(function(o){
-            if(o.getAttribute('data-v') === v) o.classList.add('sel');
-          });
-        }
-      });
-      document.querySelectorAll('.score-row').forEach(function(group){
-        var q = group.getAttribute('data-q');
-        var v = state.quiz[q];
-        if(v){
-          group.querySelectorAll('.score-btn').forEach(function(o){
-            if(o.getAttribute('data-v') === v) o.classList.add('sel');
-          });
-        }
-      });
-      if($('q3')) $('q3').value = state.quiz.q3 || '';
-      if($('q4')) $('q4').value = state.quiz.q4 || '';
-    }
+    if(state.pos >= LAST) showGoalBanner();
+
+    document.querySelectorAll('.opts').forEach(function(group){
+      var q = group.getAttribute('data-q');
+      var v = state.quiz[q];
+      if(v){
+        group.querySelectorAll('.opt').forEach(function(o){
+          if(o.getAttribute('data-v') === v) o.classList.add('sel');
+        });
+      }
+    });
+    document.querySelectorAll('.score-row').forEach(function(group){
+      var q = group.getAttribute('data-q');
+      var v = state.quiz[q];
+      if(v){
+        group.querySelectorAll('.score-btn').forEach(function(o){
+          if(o.getAttribute('data-v') === v) o.classList.add('sel');
+        });
+      }
+    });
+    if($('q3')) $('q3').value = state.quiz.q3 || '';
+    if($('q4')) $('q4').value = state.quiz.q4 || '';
+    refreshAnsweredMarks();
+
     goTo(state.scene || 'title');
+
+    if(state.scene === 'quiz' && state.cert && state.cert.title){
+      showCertificate({ silent: true });
+    }
   }
 
   function start(data){
     var hasData = data && Object.keys(data).length > 0;
+    wireQuiz();
     boot(hasData ? data : (load() || state));
   }
 
