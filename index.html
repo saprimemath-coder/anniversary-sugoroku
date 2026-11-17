@@ -180,6 +180,18 @@
   }
   .btn.secondary:active{ transform: translateY(2px); }
   .btn[disabled]{ opacity:.35; pointer-events:none; }
+  .btn:focus-visible{ outline: 3px solid var(--gold); outline-offset: 2px; }
+  /* A tertiary action: no box at all, just a quiet text link — for things
+     like "start over" that shouldn't compete with the screen's main action. */
+  .btn-link{
+    display:block; margin: 14px auto 0;
+    background:none; border:none; padding:6px 10px;
+    min-height:44px;
+    font-family: var(--font-body); font-size:14px; font-weight:500;
+    color: var(--paper-dim);
+    text-decoration: underline; text-underline-offset:3px;
+    cursor:pointer;
+  }
   .btn-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:18px; }
 
   /* ---------- Mascot / speech bubble ---------- */
@@ -305,8 +317,8 @@
   }
   .card .mini-icon{ width: clamp(22px, 7.5vw, 30px); height: clamp(22px, 7.5vw, 30px); margin-bottom: 5%; flex:none; }
   .card .mini-icon .icon-illustration{ width:100%; height:100%; }
-  .card .mini-label{ font-size: clamp(10px, 3vw, 12px); font-weight:700; color: var(--coral-deep); line-height:1.25; margin-bottom: 4%; }
-  .card .mini-txt{ font-size: clamp(9.5px, 2.8vw, 11px); font-weight:500; color: var(--ink); line-height:1.4; }
+  .card .mini-label{ font-size: clamp(11px, 3.3vw, 13px); font-weight:700; color: var(--coral-deep); line-height:1.3; margin-bottom: 4%; }
+  .card .mini-txt{ font-size: clamp(10.5px, 3vw, 12px); font-weight:500; color: var(--ink); line-height:1.45; }
 
   /* ---- Enlarged mission-card overlay (tap-to-reveal) ---- */
   .card-overlay-backdrop{
@@ -356,8 +368,8 @@
   }
   .co-back.co-static{ transform:none; }
   .co-close{
-    position:absolute; top:8px; right:8px;
-    width:36px; height:36px; border-radius:50%;
+    position:absolute; top:6px; right:6px;
+    width:40px; height:40px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     background: rgba(34,29,26,0.08); border:none;
     font-size:19px; line-height:1; color:var(--ink);
@@ -505,7 +517,7 @@
   #scene-sugoroku .tile .token{ top:-9px; }
   #scene-sugoroku .dice-area{ margin: 2px 0 0; }
   #scene-sugoroku .dice{ width:44px; height:44px; margin:0 auto 8px; font-size:22px; }
-  #scene-sugoroku #rollBtn{ padding: 10px 24px; font-size: 14px; }
+  #scene-sugoroku #rollBtn{ padding: 10px 26px; font-size: 15px; }
   #scene-sugoroku .turnlog{ margin: 4px 0 0; font-size: 11px; min-height:14px; }
   #scene-sugoroku .goal-banner{ margin: 8px 0 0; padding: 6px 12px; }
   #scene-sugoroku .btn-row{ margin-top: 10px; }
@@ -560,18 +572,70 @@
   .popup .icon{ font-size: 36px; margin-bottom: 8px; }
   .popup .msg{ font-size: 17px; line-height: 1.6; margin-bottom: 20px; font-weight: 500; }
 
-  /* ---------- Scene 3: quiz — a diary page, not a form. Each question
-     sits directly on the page with a notebook rule underneath, rather
-     than being boxed like every other section. ---------- */
+  /* ---------- Scene 3: quiz — a real notebook page, not a form. The
+     whole stage sits on one cream sheet (binding holes down the left
+     edge, faint ruled lines) instead of floating loose on the navy
+     background; each question sits directly on that page, separated
+     by a thin rule, rather than being boxed like a generic form. ---------- */
+  .notebook{
+    position: relative;
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 4px 16px 16px 4px;
+    padding: 64px 18px 6px 30px;
+    margin: 2px 0 18px;
+    box-shadow: 0 6px 0 rgba(16,20,42,0.3);
+    background-image: repeating-linear-gradient(var(--paper) 0px, var(--paper) 29px, var(--line-on-paper) 29px, var(--line-on-paper) 30px);
+    background-position: 0 86px;
+    transform: rotate(-0.3deg);
+  }
+  .notebook::before{
+    /* three punched binding holes down the left edge */
+    content:"";
+    position:absolute; left:10px; top:34px; bottom:18px; width:8px;
+    background-image: radial-gradient(circle, var(--navy-deep) 3px, transparent 3.2px);
+    background-size: 8px 72px;
+    background-repeat: repeat-y;
+    opacity: .22;
+  }
+  /* Positioned absolutely (not floated) so it sits in the page's corner
+     without narrowing the first question's layout. */
+  .notebook-mascot{
+    position: absolute; top:10px; right:14px;
+    display:flex; flex-direction:column; align-items:flex-end;
+    width: 72px;
+  }
+  .notebook-mascot img{
+    width: 46px; height:auto; flex:none;
+    filter: drop-shadow(0 2px 3px rgba(16,20,42,0.3));
+  }
+  .notebook-mascot p{
+    margin: 2px 2px 0 0;
+    font-family: var(--font-display);
+    font-size: 11.5px;
+    line-height: 1.3;
+    color: var(--coral-deep);
+    text-align: right;
+    transform: rotate(-2deg);
+  }
   .quiz-block{
+    clear: none;
     padding: 0 2px 16px;
     margin-bottom: 16px;
     border-bottom: 1px dashed var(--line-on-navy);
     transition: border-color .2s ease;
   }
-  .quiz-block.answered{ border-bottom-color: rgba(217,161,85,0.6); }
-  .quiz-q{ font-weight:700; margin-bottom: 12px; font-size: 15px; display:flex; align-items:center; gap:6px; }
-  .quiz-q .check{ color: var(--gold); font-size: 13px; opacity:0; transition: opacity .2s ease; }
+  .quiz-block.answered{ border-bottom-color: rgba(185,128,60,0.55); }
+  .quiz-q{ font-weight:700; margin-bottom: 12px; font-size: 15px; display:flex; align-items:center; gap:8px; line-height:1.4; }
+  .quiz-q .qnum{
+    display:inline-flex; align-items:center; justify-content:center;
+    flex:none; width:24px; height:24px; border-radius:50%;
+    background: var(--coral); color: var(--paper);
+    font-family: var(--font-display); font-size:14px; font-weight:400;
+    transform: rotate(-6deg);
+    box-shadow: 0 2px 0 var(--coral-deep);
+  }
+  .quiz-q .check{ color: var(--gold-deep); font-size: 13px; opacity:0; transition: opacity .2s ease; }
   .quiz-block.answered .quiz-q .check{ opacity:1; }
   .opts{ display:flex; flex-wrap:wrap; gap: 9px; }
   /* little paper tags rather than uniform pill chips */
@@ -579,12 +643,12 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 500;
-    color: var(--paper);
-    background: rgba(247,236,216,0.08);
-    border: 1.5px dashed var(--line-on-navy);
+    color: var(--ink);
+    background: rgba(34,29,26,0.04);
+    border: 1.5px dashed var(--line-on-paper);
     border-radius: 4px 10px 4px 10px;
     padding: 10px 16px;
-    min-height: 40px;
+    min-height: 44px;
     display:flex; align-items:center;
     cursor:pointer;
   }
@@ -596,36 +660,35 @@
     border: 1.5px solid var(--gold-deep);
     font-weight:700;
   }
-  /* lined notebook paper */
+  /* lined notebook paper — the entry itself continues the page's own rules */
   .freetext{
     width:100%;
     font-family: var(--font-body);
     font-size: 16px;
     color: var(--ink);
-    background:
-      repeating-linear-gradient(var(--paper) 0px, var(--paper) 27px, var(--line-on-paper) 27px, var(--line-on-paper) 28px);
-    background-position: 0 4px;
+    background: transparent;
     border: none;
     border-left: 3px solid var(--coral);
     border-radius: 4px;
-    padding: 12px 14px;
+    padding: 2px 0 2px 14px;
     resize: vertical;
-    min-height: 46px;
-    line-height: 28px;
+    min-height: 87px;
+    line-height: 29px;
   }
+  .freetext:focus-visible{ outline: 2px solid var(--gold-deep); outline-offset: 2px; }
   .score-row{ display:flex; gap:8px; flex-wrap:wrap; }
   .score-btn{
     flex: 1 1 60px;
     text-align:center;
     font-weight:700;
     font-size: 14px;
-    color: var(--paper);
-    background: rgba(247,236,216,0.08);
-    border: 1.5px dashed var(--line-on-navy);
+    color: var(--ink);
+    background: rgba(34,29,26,0.04);
+    border: 1.5px dashed var(--line-on-paper);
     border-radius: 50%;
     aspect-ratio: 1;
     padding: 0;
-    min-height: 40px;
+    min-height: 44px;
     display:flex; align-items:center; justify-content:center;
     cursor:pointer;
   }
@@ -700,8 +763,8 @@
     margin-top: 18px;
   }
   .cert .cert-chars{
-    width: 92px;
-    max-width: 38%;
+    width: 74px;
+    max-width: 32%;
     height:auto;
     flex: none;
   }
@@ -834,48 +897,50 @@
     <h2 class="display">最後にひとつずつ</h2>
     <p class="lead">答えると、1周年の表彰状が出てきます。</p>
 
-    <div class="mascot-row">
-      <img src="assets/characters/chan-pi-love.webp" alt="ちゃんとぴ">
-      <div class="speech-bubble">今日の思い出をいっしょにふりかえろう♪</div>
-    </div>
-
-    <div class="quiz-block" id="qb-q1">
-      <p class="quiz-q">Q1. 今日いちばん楽しかったのは？ <span class="check">✓</span></p>
-      <div class="opts" data-q="q1">
-        <div class="opt" data-v="食品サンプル作り">食品サンプル作り</div>
-        <div class="opt" data-v="写真館">写真館</div>
-        <div class="opt" data-v="イタリアンディナー">イタリアンディナー</div>
-        <div class="opt" data-v="ぜんぶ">ぜんぶ</div>
+    <div class="notebook">
+      <div class="notebook-mascot">
+        <img src="assets/characters/chan-pi-love.webp" alt="ちゃんとぴ">
+        <p>いっしょに<br>ふりかえろう♪</p>
       </div>
-    </div>
 
-    <div class="quiz-block" id="qb-q2">
-      <p class="quiz-q">Q2. 今日のMVP（一番がんばったのは）？ <span class="check">✓</span></p>
-      <div class="opts" data-q="q2">
-        <div class="opt" data-v="わたし">わたし</div>
-        <div class="opt" data-v="あなた">あなた</div>
-        <div class="opt" data-v="ふたり">ふたり</div>
+      <div class="quiz-block" id="qb-q1">
+        <p class="quiz-q"><span class="qnum">1</span> 今日いちばん楽しかったのは？ <span class="check">✓</span></p>
+        <div class="opts" data-q="q1">
+          <div class="opt" data-v="食品サンプル作り">食品サンプル作り</div>
+          <div class="opt" data-v="写真館">写真館</div>
+          <div class="opt" data-v="イタリアンディナー">イタリアンディナー</div>
+          <div class="opt" data-v="ぜんぶ">ぜんぶ</div>
+        </div>
       </div>
-    </div>
 
-    <div class="quiz-block" id="qb-q3">
-      <p class="quiz-q">Q3. 今日を一言で言うと？ <span class="check">✓</span></p>
-      <textarea class="freetext" id="q3" placeholder="例：しあわせすぎる1日" maxlength="60"></textarea>
-    </div>
+      <div class="quiz-block" id="qb-q2">
+        <p class="quiz-q"><span class="qnum">2</span> 今日のMVP（一番がんばったのは）？ <span class="check">✓</span></p>
+        <div class="opts" data-q="q2">
+          <div class="opt" data-v="わたし">わたし</div>
+          <div class="opt" data-v="あなた">あなた</div>
+          <div class="opt" data-v="ふたり">ふたり</div>
+        </div>
+      </div>
 
-    <div class="quiz-block" id="qb-q4">
-      <p class="quiz-q">Q4. 2年目にふたりでしたいことは？ <span class="check">✓</span></p>
-      <textarea class="freetext" id="q4" placeholder="例：一緒に旅行に行く" maxlength="60"></textarea>
-    </div>
+      <div class="quiz-block" id="qb-q3">
+        <p class="quiz-q"><span class="qnum">3</span> 今日を一言で言うと？ <span class="check">✓</span></p>
+        <textarea class="freetext" id="q3" placeholder="例：しあわせすぎる1日" maxlength="60"></textarea>
+      </div>
 
-    <div class="quiz-block" id="qb-q5">
-      <p class="quiz-q">Q5. 今日を100点満点で採点すると？ <span class="check">✓</span></p>
-      <div class="score-row" data-q="q5">
-        <div class="score-btn" data-v="80点">80</div>
-        <div class="score-btn" data-v="90点">90</div>
-        <div class="score-btn" data-v="95点">95</div>
-        <div class="score-btn" data-v="100点">100</div>
-        <div class="score-btn" data-v="120点">120</div>
+      <div class="quiz-block" id="qb-q4">
+        <p class="quiz-q"><span class="qnum">4</span> 2年目にふたりでしたいことは？ <span class="check">✓</span></p>
+        <textarea class="freetext" id="q4" placeholder="例：一緒に旅行に行く" maxlength="60"></textarea>
+      </div>
+
+      <div class="quiz-block" id="qb-q5">
+        <p class="quiz-q"><span class="qnum">5</span> 今日を100点満点で採点すると？ <span class="check">✓</span></p>
+        <div class="score-row" data-q="q5">
+          <div class="score-btn" data-v="80点">80</div>
+          <div class="score-btn" data-v="90点">90</div>
+          <div class="score-btn" data-v="95点">95</div>
+          <div class="score-btn" data-v="100点">100</div>
+          <div class="score-btn" data-v="120点">120</div>
+        </div>
       </div>
     </div>
 
@@ -1363,9 +1428,9 @@
         '</div>' +
       '</div>' +
       '<div class="btn-row">' +
-        '<button class="btn secondary" onclick="saveCertAsImage()">📥 画像として保存</button>' +
-        '<button class="btn secondary" onclick="resetAll()">もう一度あそぶ</button>' +
-      '</div>';
+        '<button class="btn" onclick="saveCertAsImage()">📥 画像として保存</button>' +
+      '</div>' +
+      '<button class="btn-link" onclick="resetAll()">もう一度あそぶ</button>';
 
     $('certWrap').innerHTML = html;
     $('certWrap').style.display = 'block';
@@ -1403,9 +1468,12 @@
     return Promise.resolve();
   }
 
+  var saveCertBusy = false;
   function saveCertAsImage(){
+    if(saveCertBusy) return;
     var certEl = $('certEl');
     if(typeof html2canvas !== 'function' || !certEl){ return; }
+    saveCertBusy = true;
     fontsReady().then(function(){
       return html2canvas(certEl, { backgroundColor: null, scale: 2 });
     }).then(function(canvas){
@@ -1442,7 +1510,8 @@
       }
 
       fallbackToModal(canvas);
-    }).catch(function(){ /* html2canvas itself failed: nothing to show */ });
+    }).catch(function(){ /* html2canvas itself failed: nothing to show */ })
+      .finally(function(){ saveCertBusy = false; });
   }
   window.saveCertAsImage = saveCertAsImage;
 
