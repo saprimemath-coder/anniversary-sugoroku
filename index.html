@@ -1009,16 +1009,9 @@
         });
       }
 
-      if(inner && inner.classList.contains('flipped')){
-        inner.addEventListener('transitionend', function onUnflip(e3){
-          if(e3.propertyName !== 'transform') return;
-          inner.removeEventListener('transitionend', onUnflip);
-          fly();
-        }, { once:true });
-        inner.classList.remove('flipped');
-      } else {
-        fly();
-      }
+      // Closing never flips back to the "?" back face — once revealed, a
+      // card stays face-up and just shrinks back to its grid slot as-is.
+      fly();
     }
 
     overlay.querySelector('.co-close').addEventListener('click', closeCard);
