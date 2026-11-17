@@ -524,7 +524,8 @@
     border: 3px solid var(--gold-deep);
     outline: 7px solid var(--paper);
     outline-offset: -14px;
-    box-shadow: 0 0 0 1px var(--gold-deep) inset;
+    /* No box-shadow here: html2canvas 1.4.1 renders an inset box-shadow on
+       this element as a solid fill over the whole card, breaking saveCertAsImage(). */
     text-align:center;
     position: relative;
     overflow: hidden;
