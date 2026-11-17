@@ -209,10 +209,10 @@
   }
   .card{
     position:relative;
-    aspect-ratio: 3 / 4;
+    min-height: clamp(150px, 42vw, 190px);
     border-radius: clamp(12px, 4vw, 18px);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding: 8%;
+    padding: 7% 6%;
     text-align:center;
     cursor:pointer;
     background: linear-gradient(160deg, var(--coral), var(--coral-deep));
@@ -225,10 +225,13 @@
     color: var(--ink);
     border-color: var(--gold-deep);
     box-shadow: 0 5px 0 rgba(14,18,38,0.3);
+    justify-content: flex-start;
+    padding-top: 9%;
   }
-  .card .mini-icon{ width: clamp(26px, 9vw, 36px); height: clamp(26px, 9vw, 36px); margin-bottom: 6%; flex:none; }
+  .card .mini-icon{ width: clamp(22px, 7.5vw, 30px); height: clamp(22px, 7.5vw, 30px); margin-bottom: 5%; flex:none; }
   .card .mini-icon .icon-illustration{ width:100%; height:100%; }
-  .card .mini-label{ font-size: clamp(10px, 3vw, 12.5px); font-weight:700; color: var(--coral-deep); line-height:1.25; }
+  .card .mini-label{ font-size: clamp(10px, 3vw, 12px); font-weight:700; color: var(--coral-deep); line-height:1.25; margin-bottom: 4%; }
+  .card .mini-txt{ font-size: clamp(9.5px, 2.8vw, 11px); font-weight:500; color: var(--ink); line-height:1.4; }
 
   /* ---- Enlarged mission-card overlay (tap-to-reveal) ---- */
   .card-overlay-backdrop{
@@ -784,9 +787,9 @@
   }
 
   var MISSIONS = [
-    { icon:'🍡', label:'食品サンプル作りミッション', text:'完成した作品を、本物のごちそうみたいに掲げて「いただきます」の写真を1枚撮る。' },
-    { icon:'📸', label:'写真館ミッション', text:'1年前と同じ場所で、1年前と同じポーズをひとつ再現する。' },
-    { icon:'🍝', label:'ディナーミッション', text:'乾杯の前に、この1年の「ありがとう」をひとつだけ声に出して伝える。' }
+    { icon:'🍡', label:'食品サンプルミッション', text:'完成した作品を掲げて、「いただきます！」の写真を撮ろう！' },
+    { icon:'📸', label:'思い出再現ミッション', text:'1年前の写真と同じポーズで、もう一度撮影しよう！' },
+    { icon:'🍝', label:'ありがとうミッション', text:'乾杯の前に、2人で「ありがとう」を伝えよう！' }
   ];
 
   // board squares 1..20 (index0 unused, 1=start, 20=goal)
@@ -878,12 +881,9 @@
   if(window.visualViewport) window.visualViewport.addEventListener('resize', scheduleFit, { passive:true });
 
   // ---- Scene 1: cards ----
-  function shortLabel(label){
-    return label.replace(/ミッション$/, '');
-  }
   function miniInnerHtml(m, revealed){
     return revealed
-      ? '<div class="mini-icon">'+iconHtml(m.icon)+'</div><div class="mini-label">'+shortLabel(m.label)+'</div>'
+      ? '<div class="mini-icon">'+iconHtml(m.icon)+'</div><div class="mini-label">'+m.label+'</div><div class="mini-txt">'+m.text+'</div>'
       : '<div class="q">?</div>';
   }
   function renderCards(){
