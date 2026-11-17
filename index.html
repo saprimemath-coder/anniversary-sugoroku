@@ -10,19 +10,24 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
   :root{
-    /* palette: navy game-box + marigold/coral accents on cream paper */
-    --navy: #161c38;
-    --navy-deep: #0e1226;
-    --paper: #fbf1e1;
-    --paper-dim: #efe3c9;
-    --ink: #161c38;
-    --gold: #f3a53b;
-    --gold-deep: #d6872a;
-    --coral: #ff6f59;
-    --coral-deep: #e2503d;
-    --line-on-navy: rgba(251,241,225,0.16);
-    --line-on-paper: rgba(22,28,56,0.14);
-    --shadow: rgba(14,18,38,0.35);
+    /* palette: navy game-box + marigold/coral accents on cream paper —
+       slightly muted/warmed from pure digital color toward "printed on
+       paper" tones. */
+    --navy: #1a2039;
+    --navy-deep: #10142a;
+    --paper: #f7ecd8;
+    --paper-dim: #ecdfc3;
+    --paper-deep: #e4d4ae;
+    --ink: #221d1a;
+    --gold: #d9a155;
+    --gold-deep: #b9803c;
+    --coral: #e46953;
+    --coral-deep: #c44f3d;
+    --brown: #8a6a4e;
+    --brown-deep: #5f4631;
+    --line-on-navy: rgba(247,236,216,0.16);
+    --line-on-paper: rgba(34,29,26,0.16);
+    --shadow: rgba(16,20,42,0.35);
     color-scheme: dark;
 
     --font-display: 'Yomogi', 'Zen Maru Gothic', sans-serif;
@@ -32,7 +37,14 @@
   *{ box-sizing: border-box; }
   html, body{ margin:0; padding:0; }
   body{
-    background: var(--navy);
+    /* A few soft, uneven blotches plus a fine fibrous grain instead of a
+       flat fill — just enough to read as paper/cloth, never as noise. */
+    background-color: var(--navy);
+    background-image:
+      radial-gradient(ellipse 60% 40% at 12% 8%, rgba(217,161,85,0.10), transparent 60%),
+      radial-gradient(ellipse 50% 35% at 88% 18%, rgba(228,105,83,0.07), transparent 65%),
+      radial-gradient(ellipse 70% 50% at 50% 95%, rgba(247,236,216,0.05), transparent 70%),
+      repeating-linear-gradient(115deg, rgba(247,236,216,0.025) 0px, rgba(247,236,216,0.025) 1px, transparent 1px, transparent 3px);
     color: var(--paper);
     font-family: var(--font-body);
     min-height: 100%;
@@ -47,6 +59,24 @@
   }
   .stage:has(#scene-sugoroku.visible){ padding-bottom: 18px; }
 
+  /* ---------- Shared "handmade label" bits: stamp-plate eyebrows,
+     paper-label buttons, folded-note speech bubbles ---------- */
+  .eyebrow{
+    display: inline-block;
+    font-size: 11.5px;
+    letter-spacing: .14em;
+    color: var(--navy-deep);
+    font-weight: 700;
+    background: var(--gold);
+    border: 1.5px dashed rgba(16,20,42,0.3);
+    border-radius: 3px;
+    padding: 3px 11px 2px;
+    margin: 0 0 10px;
+    transform: rotate(-1.2deg);
+    box-shadow: 0 2px 0 rgba(16,20,42,0.2);
+  }
+  .scene > .eyebrow{ display:block; width: fit-content; margin-left:auto; margin-right:auto; }
+
   /* top stamp bar */
   .stampbar{
     display:flex;
@@ -60,7 +90,7 @@
     border-radius: 50%;
     display:flex; align-items:center; justify-content:center;
     font-size: 20px;
-    background: rgba(251,241,225,0.07);
+    background: rgba(247,236,216,0.07);
     border: 2px solid var(--line-on-navy);
     opacity: 0.45;
     transition: all .35s ease;
@@ -88,27 +118,29 @@
   .scene.visible{ display:block; animation: fadein .45s ease; }
   @keyframes fadein{ from{ opacity:0; transform: translateY(10px); } to{ opacity:1; transform:none; } }
 
-  .eyebrow{
-    font-size: 13px;
-    letter-spacing: .12em;
-    color: var(--gold);
-    font-weight: 700;
-    text-align:center;
-    margin: 0 0 4px;
-  }
   h1.display{
     font-family: var(--font-display);
     font-size: clamp(34px, 9vw, 52px);
     text-align:center;
-    margin: 0 0 6px;
+    margin: 0 0 10px;
     line-height: 1.15;
     text-shadow: 0 3px 0 var(--navy-deep);
+    position: relative;
   }
   h2.display{
     font-family: var(--font-display);
     font-size: clamp(24px, 6vw, 30px);
     text-align:center;
-    margin: 0 0 4px;
+    margin: 0 0 8px;
+  }
+  h2.display::after{
+    content:"";
+    display:block;
+    width: 64px; height: 3px;
+    margin: 6px auto 0;
+    background: var(--gold);
+    border-radius: 2px;
+    opacity: .75;
   }
   p.lead{
     text-align:center;
@@ -119,20 +151,23 @@
     margin: 0 auto 22px;
   }
 
+  /* Buttons read as a tappable paper label / wooden token rather than a
+     generic rounded pill. */
   .btn{
     font-family: var(--font-body);
     font-weight: 700;
     font-size: 16px;
     color: var(--navy-deep);
     background: var(--gold);
-    border: none;
-    border-radius: 999px;
-    padding: 14px 30px;
+    border: 2px solid rgba(16,20,42,0.18);
+    border-radius: 10px;
+    padding: 14px 32px;
     min-height: 48px;
     box-shadow: 0 5px 0 var(--gold-deep);
     cursor: pointer;
     display:block;
     margin: 0 auto;
+    letter-spacing: .02em;
     transition: transform .12s ease, box-shadow .12s ease;
   }
   .btn:active{ transform: translateY(4px); box-shadow: 0 1px 0 var(--gold-deep); }
@@ -154,18 +189,20 @@
   }
   .mascot-row img{
     width: 56px; height:auto; flex: none;
-    filter: drop-shadow(0 3px 4px rgba(14,18,38,0.35));
+    filter: drop-shadow(0 3px 4px rgba(16,20,42,0.35));
   }
+  /* A folded note-card rather than a plain chat bubble: a small triangular
+     corner fold instead of a uniform rounded rectangle. */
   .speech-bubble{
     position: relative;
     background: var(--paper);
     color: var(--ink);
-    border-radius: 14px;
-    padding: 10px 14px;
+    border-radius: 3px 14px 14px 14px;
+    padding: 10px 16px 10px 14px;
     font-size: 13px;
     line-height: 1.5;
     font-weight: 600;
-    box-shadow: 0 4px 0 rgba(14,18,38,0.25);
+    box-shadow: 0 4px 0 rgba(16,20,42,0.22);
     flex: 1 1 auto;
     min-width: 0;
     max-width: 100%;
@@ -177,15 +214,35 @@
     border-style: solid;
     border-color: transparent var(--paper) transparent transparent;
   }
+  .speech-bubble::after{
+    content:"";
+    position:absolute; top:0; left:0;
+    border-width: 9px 9px 0 0;
+    border-style: solid;
+    border-color: var(--paper-deep) transparent transparent transparent;
+    border-top-right-radius: 2px;
+  }
 
   /* ---------- Scene 0: Title ---------- */
   .title-card{
-    background: radial-gradient(circle at 30% 20%, rgba(243,165,59,0.18), transparent 60%);
+    background: radial-gradient(circle at 30% 20%, rgba(217,161,85,0.18), transparent 60%);
     border: 2px dashed var(--line-on-navy);
     border-radius: 26px;
     padding: 34px 22px 30px;
     margin-top: 10px;
     text-align:center;
+    position: relative;
+  }
+  /* a small strip of washi tape holding the cover page down */
+  .title-card::before{
+    content:"";
+    position:absolute; top:-10px; left: 50%;
+    width: 72px; height: 22px;
+    margin-left: -36px;
+    background: rgba(217,161,85,0.55);
+    border: 1px solid rgba(185,128,60,0.4);
+    transform: rotate(-3deg);
+    box-shadow: 0 2px 3px rgba(16,20,42,0.2);
   }
   .hero-chars{
     display:block;
@@ -193,7 +250,7 @@
     max-width: 55%;
     height:auto;
     margin: 0 auto 6px;
-    filter: drop-shadow(0 4px 6px rgba(14,18,38,0.35));
+    filter: drop-shadow(0 4px 6px rgba(16,20,42,0.35));
     animation: heroFade .6s ease;
   }
   @keyframes heroFade{ from{ opacity:0; transform: translateY(8px); } to{ opacity:1; transform:none; } }
@@ -210,23 +267,41 @@
   .card{
     position:relative;
     min-height: clamp(150px, 42vw, 190px);
-    border-radius: clamp(12px, 4vw, 18px);
+    border-radius: clamp(10px, 3.5vw, 16px);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     padding: 7% 6%;
     text-align:center;
     cursor:pointer;
-    background: linear-gradient(160deg, var(--coral), var(--coral-deep));
-    border: 3px solid rgba(251,241,225,0.35);
-    box-shadow: 0 5px 0 rgba(14,18,38,0.4);
+    /* a faint woven stripe over the gradient, like a printed card back */
+    background:
+      repeating-linear-gradient(135deg, rgba(247,236,216,0.09) 0px, rgba(247,236,216,0.09) 2px, transparent 2px, transparent 9px),
+      linear-gradient(160deg, var(--coral), var(--coral-deep));
+    border: 3px solid rgba(247,236,216,0.32);
+    box-shadow: 0 5px 0 rgba(16,20,42,0.4);
   }
+  /* A hand-placed deck, not a perfectly ruled grid. */
+  .card:nth-child(1){ transform: rotate(-1.6deg); }
+  .card:nth-child(2){ transform: rotate(1deg); }
+  .card:nth-child(3){ transform: rotate(-0.8deg); }
   .card .q{ font-family: var(--font-display); font-size: clamp(22px, 8vw, 30px); color: var(--paper); }
   .card.revealed{
     background: var(--paper);
     color: var(--ink);
     border-color: var(--gold-deep);
-    box-shadow: 0 5px 0 rgba(14,18,38,0.3);
+    box-shadow: 0 5px 0 rgba(16,20,42,0.3);
     justify-content: flex-start;
     padding-top: 9%;
+  }
+  .card.revealed::after{
+    /* a small folded/stamped corner marks a card as collected */
+    content:"";
+    position:absolute; top:-3px; right:-3px;
+    width:0; height:0;
+    border-style: solid;
+    border-width: 0 20px 20px 0;
+    border-color: transparent var(--gold) transparent transparent;
+    border-top-right-radius: 10px;
+    opacity:.9;
   }
   .card .mini-icon{ width: clamp(22px, 7.5vw, 30px); height: clamp(22px, 7.5vw, 30px); margin-bottom: 5%; flex:none; }
   .card .mini-icon .icon-illustration{ width:100%; height:100%; }
@@ -236,7 +311,7 @@
   /* ---- Enlarged mission-card overlay (tap-to-reveal) ---- */
   .card-overlay-backdrop{
     position:fixed; inset:0; z-index:65;
-    background: rgba(14,18,38,0.72);
+    background: rgba(16,20,42,0.72);
     opacity:0;
   }
   .card-overlay{
@@ -261,9 +336,11 @@
     backface-visibility: hidden;
     display:flex; align-items:center; justify-content:center;
     text-align:center;
-    background: linear-gradient(160deg, var(--coral), var(--coral-deep));
-    border: 3px solid rgba(251,241,225,0.35);
-    box-shadow: 0 6px 0 rgba(14,18,38,0.4);
+    background:
+      repeating-linear-gradient(135deg, rgba(247,236,216,0.09) 0px, rgba(247,236,216,0.09) 2px, transparent 2px, transparent 9px),
+      linear-gradient(160deg, var(--coral), var(--coral-deep));
+    border: 3px solid rgba(247,236,216,0.35);
+    box-shadow: 0 6px 0 rgba(16,20,42,0.4);
   }
   .co-front .q{ font-family: var(--font-display); font-size: 48px; color: var(--paper); }
   .co-back{
@@ -275,14 +352,14 @@
     background: var(--paper);
     color: var(--ink);
     border: 3px solid var(--gold-deep);
-    box-shadow: 0 6px 0 rgba(14,18,38,0.3);
+    box-shadow: 0 6px 0 rgba(16,20,42,0.3);
   }
   .co-back.co-static{ transform:none; }
   .co-close{
     position:absolute; top:8px; right:8px;
     width:36px; height:36px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    background: rgba(22,28,56,0.08); border:none;
+    background: rgba(34,29,26,0.08); border:none;
     font-size:19px; line-height:1; color:var(--ink);
     cursor:pointer; padding:0;
   }
@@ -296,37 +373,64 @@
   .co-back .heading{ font-size:19px; font-weight:700; color:var(--coral-deep); margin-bottom:10px; line-height:1.3; }
   .co-back .txt{ font-size:16.5px; font-weight:500; line-height:1.6; }
 
-  /* ---------- Scene 2: Sugoroku board ---------- */
+  /* ---------- Scene 2: Sugoroku board — a printed paper board, not a
+     CSS grid: a wood/leather box frame, a worn inner rule, and tiles
+     whose colour reads their meaning before you even check the icon. */
   .board{
-    display:flex; flex-direction:column; gap: 8px;
+    display:flex; flex-direction:column; gap: 7px;
     background: var(--paper);
-    border-radius: 20px;
-    padding: 14px;
+    border-radius: 16px;
+    padding: 13px;
     margin: 18px 0;
-    box-shadow: inset 0 0 0 3px var(--gold-deep);
+    border: 6px solid var(--brown);
+    box-shadow:
+      inset 0 0 0 2px var(--brown-deep),
+      inset 0 0 0 7px var(--paper),
+      inset 0 0 0 9px var(--gold-deep),
+      0 6px 0 rgba(16,20,42,0.35);
   }
-  .board-row{ display:flex; gap: 8px; }
+  .board-row{ display:flex; gap: 7px; }
   .board-row.reverse{ flex-direction: row-reverse; }
   .tile{
     flex: 1;
     aspect-ratio: 1;
     min-width: 0;
-    border-radius: 10px;
+    border-radius: 8px;
     background: var(--paper-dim);
     color: var(--ink);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     font-size: 10px;
     font-weight: 700;
     position: relative;
-    border: 2px solid rgba(22,28,56,0.08);
+    border: 2px solid rgba(34,29,26,0.1);
   }
   .tile .n{ font-size: 11px; opacity:.55; }
   .tile .ic{ font-size: 16px; }
-  .tile.done{ background: rgba(243,165,59,0.35); }
-  .tile.start{ background: var(--gold); }
-  .tile.goal{ background: var(--coral); color: var(--paper); }
+  /* each square's type gets its own paper tint, so meaning reads before the icon does */
+  .tile.type-lucky{ background: rgba(217,161,85,0.38); border-color: rgba(185,128,60,0.3); }
+  .tile.type-mission{ background: rgba(228,105,83,0.22); border-color: rgba(196,79,61,0.28); }
+  .tile.type-warp{ background: rgba(26,32,57,0.14); border-color: rgba(26,32,57,0.22); }
+  .tile.type-rest{ background: rgba(138,106,78,0.22); border-color: rgba(95,70,49,0.25); }
+  .tile.done{ filter: brightness(0.94) saturate(0.85); }
+  .tile.start{
+    background: var(--gold);
+    border-color: var(--gold-deep);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.3);
+  }
+  .tile.goal{
+    background: var(--coral);
+    color: var(--paper);
+    border-color: var(--coral-deep);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.25);
+  }
+  .tile.start::after, .tile.goal::after{
+    content:""; position:absolute; inset:3px;
+    border: 1.5px dashed rgba(255,255,255,0.55);
+    border-radius: 6px;
+    pointer-events:none;
+  }
   .tile.current{
-    box-shadow: 0 0 0 3px var(--coral), 0 0 10px 2px rgba(255,111,89,0.55);
+    box-shadow: 0 0 0 3px var(--coral), 0 0 10px 2px rgba(228,105,83,0.5);
     z-index: 1;
   }
   .tile .token{
@@ -340,7 +444,7 @@
   .goal-banner{
     display:flex; align-items:center; justify-content:center; gap: 10px;
     margin: 14px 0 4px;
-    background: rgba(243,165,59,0.14);
+    background: rgba(217,161,85,0.14);
     border: 2px dashed var(--gold);
     border-radius: 16px;
     padding: 10px 14px;
@@ -386,8 +490,14 @@
     min-height: 0;
     flex: none;
     margin: 6px 0 8px;
-    padding: 8px;
+    padding: 7px;
     gap: 5px;
+    border-width: 4px;
+    box-shadow:
+      inset 0 0 0 2px var(--brown-deep),
+      inset 0 0 0 5px var(--paper),
+      inset 0 0 0 6px var(--gold-deep),
+      0 6px 0 rgba(16,20,42,0.35);
   }
   #scene-sugoroku .board-row{ flex:1; min-height:0; gap:5px; }
   #scene-sugoroku .tile{ aspect-ratio:auto; min-height:0; border-radius:7px; gap:1px; }
@@ -416,7 +526,7 @@
   /* square popup */
   .overlay{
     position: fixed; inset:0;
-    background: rgba(14,18,38,0.72);
+    background: rgba(16,20,42,0.72);
     display:flex; align-items:center; justify-content:center;
     padding: 24px;
     z-index: 50;
@@ -433,7 +543,7 @@
     width: 100%;
     text-align:center;
     border: 3px solid var(--gold-deep);
-    box-shadow: 0 10px 0 rgba(14,18,38,0.4);
+    box-shadow: 0 10px 0 rgba(16,20,42,0.4);
     transform: translateY(16px) scale(.96);
     transition: transform .25s ease;
   }
@@ -450,53 +560,58 @@
   .popup .icon{ font-size: 36px; margin-bottom: 8px; }
   .popup .msg{ font-size: 17px; line-height: 1.6; margin-bottom: 20px; font-weight: 500; }
 
-  /* ---------- Scene 3: quiz ---------- */
+  /* ---------- Scene 3: quiz — a diary page, not a form. Each question
+     sits directly on the page with a notebook rule underneath, rather
+     than being boxed like every other section. ---------- */
   .quiz-block{
-    background: rgba(251,241,225,0.06);
-    border: 2px solid var(--line-on-navy);
-    border-radius: 18px;
-    padding: 18px 18px 16px;
+    padding: 0 2px 16px;
     margin-bottom: 16px;
-    transition: border-color .2s ease, background .2s ease;
+    border-bottom: 1px dashed var(--line-on-navy);
+    transition: border-color .2s ease;
   }
-  .quiz-block.answered{
-    border-color: rgba(243,165,59,0.55);
-    background: rgba(243,165,59,0.07);
-  }
+  .quiz-block.answered{ border-bottom-color: rgba(217,161,85,0.6); }
   .quiz-q{ font-weight:700; margin-bottom: 12px; font-size: 15px; display:flex; align-items:center; gap:6px; }
   .quiz-q .check{ color: var(--gold); font-size: 13px; opacity:0; transition: opacity .2s ease; }
   .quiz-block.answered .quiz-q .check{ opacity:1; }
-  .opts{ display:flex; flex-wrap:wrap; gap: 8px; }
+  .opts{ display:flex; flex-wrap:wrap; gap: 9px; }
+  /* little paper tags rather than uniform pill chips */
   .opt{
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 500;
     color: var(--paper);
-    background: rgba(251,241,225,0.08);
-    border: 2px solid var(--line-on-navy);
-    border-radius: 999px;
-    padding: 11px 18px;
+    background: rgba(247,236,216,0.08);
+    border: 1.5px dashed var(--line-on-navy);
+    border-radius: 4px 10px 4px 10px;
+    padding: 10px 16px;
     min-height: 40px;
     display:flex; align-items:center;
     cursor:pointer;
   }
+  .opt:nth-child(odd){ transform: rotate(-0.6deg); }
+  .opt:nth-child(even){ transform: rotate(0.6deg); }
   .opt.sel{
     background: var(--gold);
     color: var(--navy-deep);
-    border-color: var(--gold-deep);
+    border: 1.5px solid var(--gold-deep);
     font-weight:700;
   }
+  /* lined notebook paper */
   .freetext{
     width:100%;
     font-family: var(--font-body);
     font-size: 16px;
     color: var(--ink);
-    background: var(--paper);
+    background:
+      repeating-linear-gradient(var(--paper) 0px, var(--paper) 27px, var(--line-on-paper) 27px, var(--line-on-paper) 28px);
+    background-position: 0 4px;
     border: none;
-    border-radius: 12px;
+    border-left: 3px solid var(--coral);
+    border-radius: 4px;
     padding: 12px 14px;
     resize: vertical;
     min-height: 46px;
+    line-height: 28px;
   }
   .score-row{ display:flex; gap:8px; flex-wrap:wrap; }
   .score-btn{
@@ -505,10 +620,11 @@
     font-weight:700;
     font-size: 14px;
     color: var(--paper);
-    background: rgba(251,241,225,0.08);
-    border: 2px solid var(--line-on-navy);
-    border-radius: 12px;
-    padding: 12px 0;
+    background: rgba(247,236,216,0.08);
+    border: 1.5px dashed var(--line-on-navy);
+    border-radius: 50%;
+    aspect-ratio: 1;
+    padding: 0;
     min-height: 40px;
     display:flex; align-items:center; justify-content:center;
     cursor:pointer;
@@ -536,6 +652,15 @@
     border-radius: 8px;
     pointer-events:none;
   }
+  .cert::after{
+    /* a second, finer rule just inside the first — the double gold
+       border of a real certificate rather than one bold frame */
+    content: "";
+    position:absolute; inset: 12px;
+    border: 1px solid rgba(185,128,60,0.45);
+    border-radius: 6px;
+    pointer-events:none;
+  }
   .cert .cert-corner{
     position:absolute; width:30px; height:30px;
     border: 2px solid var(--gold);
@@ -545,11 +670,20 @@
   .cert .cert-corner.tr{ top:14px; right:14px; border-left:none; border-bottom:none; }
   .cert .cert-corner.bl{ bottom:14px; left:14px; border-right:none; border-top:none; }
   .cert .cert-corner.br{ bottom:14px; right:14px; border-left:none; border-top:none; }
-  .cert .cert-eyebrow{ font-size: 11px; letter-spacing:.2em; color: var(--coral-deep); font-weight:700; }
-  .cert .cert-rule{ display:flex; align-items:center; justify-content:center; gap:8px; margin: 6px 0 4px; color: var(--gold-deep); }
-  .cert .cert-rule::before, .cert .cert-rule::after{ content:""; height:1px; width:34px; background: var(--gold); }
-  .cert h2{ font-family: var(--font-display); font-size: 32px; margin: 0 0 2px; letter-spacing:.04em; }
-  .cert .cert-date{ font-size: 12px; color: rgba(22,28,56,0.6); margin-bottom: 16px; }
+  .cert .cert-eyebrow{ font-size: 11px; letter-spacing:.22em; color: var(--coral-deep); font-weight:700; margin: 2px 0 6px; }
+  .cert h2{ font-family: var(--font-display); font-size: 32px; margin: 0 0 10px; letter-spacing:.04em; }
+  /* a small diamond seal in place of a scattered star — a single
+     deliberate ornament rather than decoration for its own sake */
+  .cert .cert-rule{ display:flex; align-items:center; justify-content:center; gap:10px; margin: 0 0 14px; }
+  .cert .cert-rule::before, .cert .cert-rule::after{ content:""; height:1px; width:40px; background: linear-gradient(90deg, transparent, var(--gold)); }
+  .cert .cert-rule::after{ background: linear-gradient(90deg, var(--gold), transparent); }
+  .cert .cert-rule .diamond{
+    width:9px; height:9px; flex:none;
+    background: var(--gold-deep);
+    transform: rotate(45deg);
+    box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px var(--gold);
+  }
+  .cert .cert-date{ font-size: 12px; color: rgba(34,29,26,0.6); margin-bottom: 16px; }
   .cert .cert-title{
     font-family: var(--font-display);
     font-size: 20px;
@@ -587,7 +721,7 @@
   /* ---------- Image preview modal (certificate save) ---------- */
   .img-modal{
     position: fixed; inset:0;
-    background: rgba(14,18,38,0.82);
+    background: rgba(16,20,42,0.82);
     display:flex; align-items:center; justify-content:center;
     padding: 20px;
     z-index: 60;
@@ -685,7 +819,7 @@
 
     <div class="goal-banner" id="goalBanner" style="display:none;">
       <img src="assets/characters/chan-pi-celebrate.webp" alt="ちゃんとぴ">
-      <div class="txt">ゴールおめでとう！♡</div>
+      <div class="txt">ゴールおめでとう！<img class="icon-illustration" src="assets/icons/heart.svg" alt="" aria-hidden="true"></div>
     </div>
 
     <div class="btn-row">
@@ -1031,7 +1165,7 @@
         var idx = r*cols + c + 1;
         var sq = SQUARES[idx];
         var tile = document.createElement('div');
-        tile.className = 'tile' +
+        tile.className = 'tile type-' + sq.type +
           (idx===1?' start':'') +
           (idx===LAST?' goal':'') +
           (idx < current ? ' done' : '') +
@@ -1218,8 +1352,8 @@
         '<div class="cert-corner bl"></div><div class="cert-corner br"></div>' +
         '<p class="cert-eyebrow">CERTIFICATE OF 1ST ANNIVERSARY</p>' +
         '<h2>表彰状</h2>' +
+        '<div class="cert-rule"><span class="diamond"></span></div>' +
         '<p class="cert-date">' + dateStr + '</p>' +
-        '<div class="cert-rule">' + iconHtml('⭐') + '</div>' +
         '<p class="cert-title">称号：' + escapeHtml(state.cert.title) + '</p>' +
         lines +
         '<div class="cert-bottom">' +
