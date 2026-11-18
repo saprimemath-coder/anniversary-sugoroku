@@ -83,7 +83,7 @@
     align-items:center;
     justify-content:center;
     gap: 14px;
-    padding: 14px 0 6px;
+    padding: 14px 0 16px;
   }
   .stamp{
     width: 42px; height:42px;
@@ -116,6 +116,14 @@
 
   .scene{ display:none; }
   .scene.visible{ display:block; animation: fadein .45s ease; }
+  /* Title screen only: with its intro paragraph removed, center the
+     remaining content in the leftover viewport height instead of letting
+     it sit at the top with empty space below. */
+  #scene-title.visible{
+    display:flex; flex-direction:column; justify-content:center;
+    min-height: calc(100vh - 150px);
+    min-height: calc(100dvh - 150px);
+  }
   @keyframes fadein{ from{ opacity:0; transform: translateY(10px); } to{ opacity:1; transform:none; } }
 
   h1.display{
@@ -357,6 +365,11 @@
   .co-front .q{ font-family: var(--font-display); font-size: 48px; color: var(--paper); }
   .co-back{
     position:relative; width:100%; box-sizing:border-box;
+    /* Keep the enlarged card portrait-ish even when the (now shortened)
+       mission text is short, so the open/close scale animation to/from
+       the portrait grid tile never has to stretch into a landscape box. */
+    min-height: min(100vw, 410px);
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
     border-radius: 24px;
     padding: 40px 20px 20px;
     backface-visibility: hidden;
@@ -486,6 +499,18 @@
   }
   .dice.rolling{ animation: spin .5s linear; }
   @keyframes spin{ from{ transform: rotate(0deg) scale(1); } 50%{ transform: rotate(180deg) scale(1.15); } to{ transform: rotate(360deg) scale(1); } }
+  .pip-face{ position:relative; width:100%; height:100%; }
+  .pip{
+    position:absolute; width:19%; height:19%;
+    border-radius:50%; background: var(--ink);
+  }
+  .pip-tl{ top:14%; left:14%; }
+  .pip-tr{ top:14%; right:14%; }
+  .pip-ml{ top:50%; left:14%; transform:translateY(-50%); }
+  .pip-mr{ top:50%; right:14%; transform:translateY(-50%); }
+  .pip-bl{ bottom:14%; left:14%; }
+  .pip-br{ bottom:14%; right:14%; }
+  .pip-c{ top:50%; left:50%; transform:translate(-50%,-50%); }
 
   .turnlog{ text-align:center; font-size: 13px; color: var(--paper-dim); min-height: 18px; margin-bottom: 4px; }
 
@@ -523,7 +548,7 @@
   #scene-sugoroku .btn-row{ margin-top: 10px; }
 
   @media (max-height: 700px){
-    .stampbar{ padding-top:8px; padding-bottom:2px; }
+    .stampbar{ padding-top:8px; padding-bottom:10px; }
     .stamp{ width:36px; height:36px; }
     #scene-sugoroku .mascot-row{ margin-bottom:4px; }
     #scene-sugoroku .mascot-row img{ width:36px; }
@@ -676,23 +701,7 @@
     line-height: 29px;
   }
   .freetext:focus-visible{ outline: 2px solid var(--gold-deep); outline-offset: 2px; }
-  .score-row{ display:flex; gap:8px; flex-wrap:wrap; }
-  .score-btn{
-    flex: 1 1 60px;
-    text-align:center;
-    font-weight:700;
-    font-size: 14px;
-    color: var(--ink);
-    background: rgba(34,29,26,0.04);
-    border: 1.5px dashed var(--line-on-paper);
-    border-radius: 50%;
-    aspect-ratio: 1;
-    padding: 0;
-    min-height: 44px;
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer;
-  }
-  .score-btn.sel{ background: var(--coral); border-color: var(--coral-deep); color: var(--paper); }
+  .freetext-line{ min-height:44px; height:44px; resize:none; }
 
   /* ---------- Certificate ---------- */
   .cert{
@@ -839,7 +848,6 @@
       <p class="eyebrow">HAPPY 1ST ANNIVERSARY</p>
       <h1 class="display">祝、1周年。</h1>
       <div class="heart-row">· ⭐ · 🍡 · 📸 · 🍝 · ⭐ ·</div>
-      <p class="lead">いつも一緒にいてくれてありがとう。<br>今日という日を、ちょっと遊び心のあるゲームでお祝いしよう。<br>食品サンプル作り、写真館、ディナー、すべてに連動した3つのステージがあります。</p>
       <button class="btn" onclick="goTo('cards')">はじめる →</button>
     </div>
   </section>
@@ -934,13 +942,7 @@
 
       <div class="quiz-block" id="qb-q5">
         <p class="quiz-q"><span class="qnum">5</span> 今日を100点満点で採点すると？ <span class="check">✓</span></p>
-        <div class="score-row" data-q="q5">
-          <div class="score-btn" data-v="80点">80</div>
-          <div class="score-btn" data-v="90点">90</div>
-          <div class="score-btn" data-v="95点">95</div>
-          <div class="score-btn" data-v="100点">100</div>
-          <div class="score-btn" data-v="120点">120</div>
-        </div>
+        <input class="freetext freetext-line" id="q5" type="text" inputmode="numeric" placeholder="例：100" maxlength="20">
       </div>
     </div>
 
@@ -1039,6 +1041,21 @@
     var name = ICON_MAP[emoji];
     if(!name) return emoji;
     return '<img class="icon-illustration' + (extraClass ? ' ' + extraClass : '') + '" src="assets/icons/' + name + '.svg" alt="" aria-hidden="true">';
+  }
+
+  // A real pip-face die (not a digit, not a Unicode dice glyph — those are
+  // missing-glyph boxes on some Android fonts) built from plain dots so it
+  // scales with .dice at any size.
+  var DICE_PIPS = {
+    1:['c'], 2:['tl','br'], 3:['tl','c','br'],
+    4:['tl','tr','bl','br'], 5:['tl','tr','c','bl','br'],
+    6:['tl','tr','ml','mr','bl','br']
+  };
+  function diceFaceHtml(n){
+    var pips = DICE_PIPS[n] || [];
+    return '<div class="pip-face">' + pips.map(function(p){
+      return '<i class="pip pip-' + p + '"></i>';
+    }).join('') + '</div>';
   }
 
   function $(id){ return document.getElementById(id); }
@@ -1273,13 +1290,13 @@
     var spins = 8;
     var i = 0;
     var spinTimer = setInterval(function(){
-      dice.textContent = String(1 + Math.floor(Math.random()*6));
+      dice.innerHTML = diceFaceHtml(1 + Math.floor(Math.random()*6));
       i++;
       if(i >= spins){
         clearInterval(spinTimer);
         dice.classList.remove('rolling');
         var roll = 1 + Math.floor(Math.random()*6);
-        dice.textContent = roll;
+        dice.innerHTML = diceFaceHtml(roll);
         advance(roll);
       }
     }, 70);
@@ -1363,20 +1380,9 @@
         });
       });
     });
-    document.querySelectorAll('.score-row').forEach(function(group){
-      var q = group.getAttribute('data-q');
-      group.querySelectorAll('.score-btn').forEach(function(opt){
-        opt.addEventListener('click', function(){
-          group.querySelectorAll('.score-btn').forEach(function(o){ o.classList.remove('sel'); });
-          opt.classList.add('sel');
-          state.quiz[q] = opt.getAttribute('data-v');
-          save();
-          markAnswered(q);
-        });
-      });
-    });
     $('q3').addEventListener('input', function(){ state.quiz.q3 = this.value; save(); markAnswered('q3'); });
     $('q4').addEventListener('input', function(){ state.quiz.q4 = this.value; save(); markAnswered('q4'); });
+    $('q5').addEventListener('input', function(){ state.quiz.q5 = this.value; save(); markAnswered('q5'); });
   }
 
   function markAnswered(q){
@@ -1537,9 +1543,10 @@
     $('certWrap').innerHTML = '';
     $('dice').innerHTML = iconHtml('🎲');
     closeImgModal();
-    document.querySelectorAll('.opts .opt, .score-row .score-btn').forEach(function(o){ o.classList.remove('sel'); });
+    document.querySelectorAll('.opts .opt').forEach(function(o){ o.classList.remove('sel'); });
     if($('q3')) $('q3').value = '';
     if($('q4')) $('q4').value = '';
+    if($('q5')) $('q5').value = '';
     refreshAnsweredMarks();
     $('toSugorokuBtn').disabled = true;
     $('toQuizBtn').disabled = true;
@@ -1573,17 +1580,9 @@
         });
       }
     });
-    document.querySelectorAll('.score-row').forEach(function(group){
-      var q = group.getAttribute('data-q');
-      var v = state.quiz[q];
-      if(v){
-        group.querySelectorAll('.score-btn').forEach(function(o){
-          if(o.getAttribute('data-v') === v) o.classList.add('sel');
-        });
-      }
-    });
     if($('q3')) $('q3').value = state.quiz.q3 || '';
     if($('q4')) $('q4').value = state.quiz.q4 || '';
+    if($('q5')) $('q5').value = state.quiz.q5 || '';
     refreshAnsweredMarks();
 
     goTo(state.scene || 'title');
